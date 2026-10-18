@@ -1,5 +1,5 @@
 <!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
-<title>Zui To-Do v3.2</title>
+<title>Zui To-Do v3.3</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -309,7 +309,7 @@ h1,h2,h3,p{margin:0}
 @media (max-width:700px){.sheet.compact{top:auto;left:0;right:0;width:auto;bottom:0;max-height:70%;border-radius:18px 18px 0 0;border-width:1px 0 0}}
 .page{position:fixed;inset:0;z-index:55;background:var(--bg);overflow-y:auto;overscroll-behavior:contain;padding:env(safe-area-inset-top,0px) 0 calc(28px + env(safe-area-inset-bottom,0px));animation:pgin .18s ease-out}
 @keyframes pgin{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-.page-in{max-width:560px;margin:0 auto;padding:0 16px}
+.page-in{max-width:none;margin:0;padding:0 clamp(16px,5vw,72px)}
 .ph{display:flex;align-items:center;gap:18px;padding:22px 2px 20px}
 .ph h2{font:700 32px var(--font-display);letter-spacing:-.02em}
 .back{border:0;background:transparent;color:var(--ink);width:44px;height:44px;margin-left:-8px;border-radius:50%;display:grid;place-items:center;flex:none}
@@ -379,11 +379,12 @@ button.rw:hover{background:var(--surface-2)}
 .fgt{justify-self:end;font-size:13px;margin-top:-6px}
 .acct{display:flex;gap:14px;align-items:center}
 body.wide{padding-left:316px;padding-right:32px}
+body.wide.nosb{padding-left:32px}
 .wide .app{max-width:none}
-.wide .topbar .brand{display:none}
+.wide:not(.nosb) .topbar .brand{display:none}
 .wide .topbar{margin-bottom:8px;min-height:0}
 .wide .drawer.dock{width:284px;box-shadow:none;border-right:1px solid var(--line);z-index:5;animation:none}
-@media (min-width:1100px){.page-in{max-width:720px}}
+@media (min-width:900px){.pg{grid-template-columns:1fr 1fr 1fr}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 
@@ -486,7 +487,7 @@ function norm(v){
 /* ---------- state ---------- */
 const S={tasks:[],demo:false,view:'today',tag:'all',q:'',showDone:true,calMonth:TODAY.slice(0,7),calSel:TODAY,sheet:null,
   menu:false,menuFresh:false,open:{views:true,tags:true,settings:false},theme:'auto',lang:'id',panel:null,info:null,gi:0,goals:{w:15,m:60,y:600},profile:{name:'',nick:'',user:'',email:'',phone:'',birth:'',gender:'',city:'',job:'',org:'',bio:'',goal:5,remind:'',photo:'',since:''},
-  qa:{title:'',tag:'Kerja',prio:2,due:null,span:''},gk:'d',gTitle:'',gDue:'',user:null,auth:{mode:'login',email:'',err:'',fails:0,lock:0}};
+  qa:{title:'',tag:'Kerja',prio:2,due:null,span:''},gk:'d',gTitle:'',gDue:'',side:true,user:null,auth:{mode:'login',email:'',err:'',fails:0,lock:0}};
 
 /* ---------- theme preference (per viewer) ---------- */
 let themeSet=false;
@@ -797,14 +798,14 @@ function drawerHtml(wide){
 }
 function render(){
   if(!S.user){if(!authRoot.firstChild) renderAuth();return}
-  const wide=isWide();document.body.classList.toggle('wide',wide);
+  const wide=isWide();document.body.classList.toggle('wide',wide);document.body.classList.toggle('nosb',wide&&!S.side);
   const a=document.activeElement;
   const inUi=a&&a.id&&(app.contains(a)||drawerRoot.contains(a));
   const keep=inUi?{id:a.id,s:a.selectionStart,e:a.selectionEnd}:null;
   const old=drawerRoot.querySelector('.drawer'),st=old?old.scrollTop:0;
   const v=S.view==='board'?viewBoard():S.view==='cal'?viewCal():S.view==='stats'?viewStats():viewToday();
   app.innerHTML=topbar()+'<main class="main">'+v+'</main>';
-  drawerRoot.innerHTML=(S.menu||wide)?drawerHtml(wide):'';
+  drawerRoot.innerHTML=wide?(S.side?drawerHtml(true):''):(S.menu?drawerHtml(false):'');
   S.menuFresh=false;
   restoreGoalScroll();
   if(S.panel==='goal') renderGoalPanel();
@@ -1052,6 +1053,7 @@ function googleLogin(){
     tc.requestAccessToken();
   }).catch(function(){setAuthErr(L('gFail'))});
 }
+function toggleSide(){S.side=!S.side;lset('zui-todo:side',S.side?'1':'0');render()}
 function isWide(){return !!(window.matchMedia&&window.matchMedia('(min-width:1100px)').matches)}
 function acctCard(){
   const u=S.user; if(!u) return '';
@@ -1294,7 +1296,7 @@ function renderSettings(){
    +(S.demo?'<div class="pcard">'+setRow('tag','#94A3B8',L('clearDemo'),'set-clear-demo')+'</div>':'')
    +'<button class="pcard dng" type="button" data-act="set-clear-done"><span class="lbl">'+L('clearDone')+'</span></button>'
    +'<button class="pcard dng" type="button" data-act="logout" style="margin-top:12px"><span class="lbl">'+L('logout')+'</span></button>'
-   +'<small class="muted center">Zui To-Do v3.2</small>';
+   +'<small class="muted center">Zui To-Do v3.3</small>';
   putPanel(panelShell(L('settings'),body));
 }
 function renderCats(){
@@ -1429,8 +1431,8 @@ function armed(el,label,armedLabel){
 document.addEventListener('click',function(e){
   const el=e.target.closest('[data-act]'); if(!el) return;
   const a=el.dataset.act,id=el.dataset.id;
-  if(a==='menu'){S.menu?closeMenu(true):openMenu()}
-  else if(a==='menu-close'){closeMenu(true)}
+  if(a==='menu'){if(isWide()){toggleSide()}else{S.menu?closeMenu(true):openMenu()}}
+  else if(a==='menu-close'){if(isWide()){toggleSide()}else{closeMenu(true)}}
   else if(a==='dsec'){S.open[el.dataset.k]=!S.open[el.dataset.k];render()}
   else if(a==='open-settings'){
     openSettings();
@@ -1572,6 +1574,7 @@ document.addEventListener('dragend',function(){document.querySelectorAll('.col.o
 /* ---------- start ---------- */
 try{const lg=localStorage.getItem('zui-todo:lang');if(lg==='id'||lg==='ms'||lg==='en') S.lang=lg}catch(e){}
 try{const th=localStorage.getItem('zui-todo:theme');if(th==='light'||th==='dark'||th==='auto') S.theme=th}catch(e){}
+try{if(lget('zui-todo:side')==='0') S.side=false}catch(e){}
 applyTheme(S.theme);
 function loadUserData(skipTasks){
   S.profile=profDefaults();
