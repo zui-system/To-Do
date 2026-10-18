@@ -1,5 +1,5 @@
 <!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
-<title>Zui To-Do v2.3</title>
+<title>Zui To-Do v3.2</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -358,12 +358,38 @@ button.rw:hover{background:var(--surface-2)}
 .gdue .in{font:400 15px var(--font-body);letter-spacing:0;text-transform:none}
 .ghint{margin:2px 2px 8px;font-size:13px}
 .page .sec{margin-bottom:14px}
+.auth{position:fixed;inset:0;z-index:90;background:var(--bg);overflow-y:auto;display:grid;place-items:center;padding:20px}
+.auth-card{width:min(420px,100%);background:var(--surface);border-radius:26px;padding:28px 24px;display:grid;gap:14px;box-shadow:var(--shadow)}
+.auth-logo{display:flex;align-items:center;gap:10px}
+.auth-card h1{font:800 30px var(--font-display);letter-spacing:-.02em}
+.auth-card label{display:grid;gap:5px;font:500 12px var(--font-mono);letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3)}
+.auth-card .in{font:400 16px var(--font-body);letter-spacing:0;text-transform:none;padding:11px 12px}
+.pwf{position:relative;display:block}.pwf .in{padding-right:44px}
+.eye{position:absolute;right:4px;top:50%;transform:translateY(-50%);border:0;background:transparent;color:var(--ink-3);width:38px;height:38px;border-radius:50%;display:grid;place-items:center}
+.gbtn{display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;color:#1f1f1f;border:1px solid #dadce0;border-radius:12px;padding:12px;font-weight:600;font-size:15px}
+.gbtn:hover{background:#f7f8f8}
+.or{display:flex;align-items:center;gap:10px;color:var(--ink-3);font-size:12px}
+.or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
+.rules{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;font-size:12.5px;color:var(--ink-3)}
+.rules li{display:flex;gap:6px;align-items:center}.rules li.ok{color:var(--ok,#15803D);font-weight:600}
+.auth-err{min-height:18px;margin:0;color:var(--bad);font-size:13.5px;font-weight:600}
+.btn.full{width:100%;justify-content:center;padding:13px;font-size:16px}
+.auth-sw{text-align:center;color:var(--ink-2);margin:0}
+.link{border:0;background:transparent;color:var(--accent);font-weight:700;padding:0}
+.fgt{justify-self:end;font-size:13px;margin-top:-6px}
+.acct{display:flex;gap:14px;align-items:center}
+body.wide{padding-left:316px;padding-right:32px}
+.wide .app{max-width:none}
+.wide .topbar .brand{display:none}
+.wide .topbar{margin-bottom:8px;min-height:0}
+.wide .drawer.dock{width:284px;box-shadow:none;border-right:1px solid var(--line);z-index:5;animation:none}
+@media (min-width:1100px){.page-in{max-width:720px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 
 <div class="app" id="app"></div>
 <div id="drawer-root"></div>
-<div id="sheet-root"></div><div id="page-root"></div>
+<div id="sheet-root"></div><div id="page-root"></div><div id="auth-root"></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
@@ -460,7 +486,7 @@ function norm(v){
 /* ---------- state ---------- */
 const S={tasks:[],demo:false,view:'today',tag:'all',q:'',showDone:true,calMonth:TODAY.slice(0,7),calSel:TODAY,sheet:null,
   menu:false,menuFresh:false,open:{views:true,tags:true,settings:false},theme:'auto',lang:'id',panel:null,info:null,gi:0,goals:{w:15,m:60,y:600},profile:{name:'',nick:'',user:'',email:'',phone:'',birth:'',gender:'',city:'',job:'',org:'',bio:'',goal:5,remind:'',photo:'',since:''},
-  qa:{title:'',tag:'Kerja',prio:2,due:null,span:''},gk:'d',gTitle:'',gDue:''};
+  qa:{title:'',tag:'Kerja',prio:2,due:null,span:''},gk:'d',gTitle:'',gDue:'',user:null,auth:{mode:'login',email:'',err:'',fails:0,lock:0}};
 
 /* ---------- theme preference (per viewer) ---------- */
 let themeSet=false;
@@ -474,13 +500,13 @@ function applyTheme(p){
 const LS='zui-todo:v1';
 const store={
   mode:'local',db:null,uid:null,queue:Promise.resolve(),
-  lsLoad(){try{const r=localStorage.getItem(LS);return r?JSON.parse(r):null}catch(e){return null}},
-  lsSave(){try{localStorage.setItem(LS,JSON.stringify({tasks:S.tasks,onboarded:true}))}catch(e){}},
+  lsLoad(){try{const r=localStorage.getItem(K('v1'));return r?JSON.parse(r):null}catch(e){return null}},
+  lsSave(){try{localStorage.setItem(K('v1'),JSON.stringify({tasks:S.tasks,onboarded:true}))}catch(e){}},
   enqueue(fn){
     store.queue=store.queue.then(fn).catch(function(e){console.warn('zui save',e);toast('Perubahan belum tersimpan. Coba lagi sebentar.')});
     return store.queue;
   },
-  col(){return store.db.collection('data/users/'+store.uid)},
+  col(){return store.db.collection('users/'+store.uid+'/tasks')},
   put(t){
     if(store.mode==='db'){const ref=store.col().doc(t.id);store.enqueue(function(){return ref.set(t)})}
     else store.lsSave();
@@ -737,7 +763,7 @@ function viewStats(){
 }
 
 /* ---------- shell: top bar + drawer ---------- */
-const app=document.getElementById('app'),drawerRoot=document.getElementById('drawer-root'),sheetRoot=document.getElementById('sheet-root'),pageRoot=document.getElementById('page-root');
+const app=document.getElementById('app'),drawerRoot=document.getElementById('drawer-root'),sheetRoot=document.getElementById('sheet-root'),pageRoot=document.getElementById('page-root'),authRoot=document.getElementById('auth-root');
 const VIEWS=[['today','Hari Ini',P.list,'var(--accent)'],['board','Papan',P.board,'var(--c-belajar)'],['cal','Kalender',P.cal,'var(--c-pribadi)'],['stats','Ringkasan',P.chart,'var(--good)']];
 
 function pill(label,color,act,v,aria){
@@ -753,7 +779,7 @@ function dsec(k,title,body,id){
   const o=S.open[k];
   return '<section'+(id?' id="'+id+'"':'')+'><button class="dsec-h" type="button" data-act="dsec" data-k="'+k+'" aria-expanded="'+o+'"><span>'+title+'</span>'+svg(P.up,20)+'</button>'+(o?'<div class="dlist">'+body+'</div>':'')+'</section>';
 }
-function drawerHtml(){
+function drawerHtml(wide){
   const openN=function(g){return S.tasks.filter(function(t){return t.status!=='done'&&(g==='all'||t.tag===g)}).length};
   const dueN=S.tasks.filter(function(t){return t.status!=='done'&&t.due&&t.due<=TODAY}).length;
   const views=VIEWS.map(function(v){
@@ -761,7 +787,7 @@ function drawerHtml(){
   }).join('');
   const tags='<button class="di'+(S.tag==='all'?' on':'')+'" type="button" data-act="tag" data-v="all" aria-pressed="'+(S.tag==='all')+'"><span class="dot" style="--c:var(--ink-3)"></span>Semua<em>'+openN('all')+'</em></button>'
     +TAGS.map(function(g){return '<button class="di'+(S.tag===g?' on':'')+'" type="button" data-act="tag" data-v="'+g+'" aria-pressed="'+(S.tag===g)+'"><span class="dot" style="--c:'+TAGC[g]+'"></span>'+g+'<em>'+openN(g)+'</em></button>'}).join('')+'<button class="di" type="button" data-act="cats"><span class="ic">'+svg(P.plus,20)+'</span>'+L('manageTags')+'</button>';
-  return '<div class="scrim2" data-act="menu-close"></div><aside class="drawer'+(S.menuFresh?' in':'')+'" role="dialog" aria-modal="true" aria-label="Menu Zui To-Do">'
+  return (wide?'':'<div class="scrim2" data-act="menu-close"></div>')+'<aside class="drawer'+(wide?' dock':(S.menuFresh?' in':''))+'"'+(wide?'':' role="dialog" aria-modal="true"')+' aria-label="Menu Zui To-Do">'
     +'<div class="dr-head"><button id="dr-close" class="drbrand" type="button" data-act="menu-close" aria-label="Tutup menu"><span class="logo">'+svg(P.check,20)+'</span><span class="dr-name"><strong>Zui</strong> <span>To-Do</span></span></button>'
     +'<button class="x" type="button" data-act="open-profile" aria-label="'+L('profile')+'">'+svg(P.user,22)+'</button><button class="x" type="button" data-act="open-settings" aria-label="'+L('settings')+'">'+svg(P.gear,22)+'</button>'
     +'</div>'
@@ -770,18 +796,20 @@ function drawerHtml(){
     +'</aside>';
 }
 function render(){
+  if(!S.user){if(!authRoot.firstChild) renderAuth();return}
+  const wide=isWide();document.body.classList.toggle('wide',wide);
   const a=document.activeElement;
   const inUi=a&&a.id&&(app.contains(a)||drawerRoot.contains(a));
   const keep=inUi?{id:a.id,s:a.selectionStart,e:a.selectionEnd}:null;
   const old=drawerRoot.querySelector('.drawer'),st=old?old.scrollTop:0;
   const v=S.view==='board'?viewBoard():S.view==='cal'?viewCal():S.view==='stats'?viewStats():viewToday();
   app.innerHTML=topbar()+'<main class="main">'+v+'</main>';
-  drawerRoot.innerHTML=S.menu?drawerHtml():'';
+  drawerRoot.innerHTML=(S.menu||wide)?drawerHtml(wide):'';
   S.menuFresh=false;
   restoreGoalScroll();
   if(S.panel==='goal') renderGoalPanel();
   const nu=drawerRoot.querySelector('.drawer'); if(nu&&st) nu.scrollTop=st;
-  try{document.documentElement.style.overflow=S.menu?'hidden':''}catch(e){}
+  try{document.documentElement.style.overflow=(S.menu&&!wide)?'hidden':''}catch(e){}
   if(keep){
     const el=document.getElementById(keep.id);
     if(el){el.focus();try{el.setSelectionRange(keep.s,keep.e)}catch(e){}}
@@ -797,8 +825,242 @@ function closeMenu(focusBrand){
 }
 
 
+/* ---------- Firebase (Auth + Firestore). Fill FIREBASE_CONFIG to turn it on; leave apiKey empty for on-device mode ---------- */
+const FIREBASE_CONFIG={
+  apiKey:"AIzaSyBgI_elQYC1ubDVtaxTEBiGUxCHc7-xjlQ",
+  authDomain:"zui-todo.firebaseapp.com",
+  projectId:"zui-todo",
+  storageBucket:"zui-todo.firebasestorage.app",
+  messagingSenderId:"661168023257",
+  appId:"1:661168023257:web:07a176ea382c8b9fb6c0c8"
+};
+const FB={on:!!FIREBASE_CONFIG.apiKey,ready:false,auth:null,db:null,unsubs:[]};
+function loadScript(src){
+  return new Promise(function(res,rej){
+    const sc=document.createElement('script');sc.src=src;sc.async=false;
+    sc.onload=function(){res()};sc.onerror=function(){rej(new Error('load '+src))};
+    document.head.appendChild(sc);
+  });
+}
+async function fbInit(){
+  const base='https://www.gstatic.com/firebasejs/10.14.1/';
+  await loadScript(base+'firebase-app-compat.js');
+  await loadScript(base+'firebase-auth-compat.js');
+  await loadScript(base+'firebase-firestore-compat.js');
+  firebase.initializeApp(FIREBASE_CONFIG);
+  FB.auth=firebase.auth();FB.db=firebase.firestore();
+  try{FB.db.enablePersistence({synchronizeTabs:true}).catch(function(){})}catch(e){}
+  FB.auth.onAuthStateChanged(fbUser);
+}
+function fbUser(u){
+  FB.ready=true;
+  FB.unsubs.forEach(function(f){try{f()}catch(e){}});FB.unsubs=[];
+  if(!u){
+    S.user=null;S.tasks=[];S.menu=false;S.panel=null;S.sheet=null;store.mode='local';
+    S.auth={mode:'login',email:'',err:'',fails:0,lock:0};
+    authRoot.innerHTML='';render();return;
+  }
+  const g=(u.providerData||[]).some(function(p){return p&&p.providerId==='google.com'});
+  S.user={id:u.uid,email:String(u.email||'').toLowerCase(),name:u.displayName||'',photo:u.photoURL||'',provider:g?'google':'email'};
+  store.db=FB.db;store.uid=u.uid;store.mode='db';
+  loadUserData(true);
+  S.tasks=[];S.demo=false;S.view='today';S.tag='all';S.q='';S.menu=false;S.panel=null;
+  authRoot.innerHTML='';render();
+  FB.unsubs.push(store.col().onSnapshot(function(snap){
+    let onboarded=false;const list=[];
+    snap.docs.forEach(function(d){
+      if(d.id==='_meta'){onboarded=d.exists;return}
+      const v=d.data(); if(v&&v.id) list.push(norm(v));
+    });
+    S.demo=false;S.tasks=list;
+    render();
+  },function(err){console.warn('zui tasks',err);toast(L('eNet'))}));
+  FB.unsubs.push(FB.db.doc('users/'+u.uid+'/meta/settings').onSnapshot(function(d){
+    if(d.metadata.hasPendingWrites||!d.exists) return;
+    const v=d.data()||{};
+    if(v.profile&&typeof v.profile==='object') S.profile=Object.assign(profDefaults(),v.profile);
+    if(Array.isArray(v.tags)&&v.tags.length){
+      TAGS.length=0;Object.keys(TAGC).forEach(function(k){delete TAGC[k]});
+      v.tags.forEach(function(x){const n=String(x&&x.n||'').trim().slice(0,20);if(n&&TAGS.indexOf(n)<0){TAGS.push(n);TAGC[n]=/^#[0-9a-f]{6}$/i.test(x.c)||/^var\(--c-\w+\)$/.test(x.c)?x.c:'#2A4FEE'}});
+      if(TAGS.indexOf(S.qa.tag)<0) S.qa.tag=TAGS[0];
+    }
+    if(v.goals) ['w','m','y'].forEach(function(k){if(+v.goals[k]>0) S.goals[k]=Math.floor(+v.goals[k])});
+    render();
+  },function(err){console.warn('zui settings',err)}));
+}
+let fsT=null;
+function cloudSettings(){
+  if(!FB.on||store.mode!=='db'||!S.user||!FB.db) return;
+  clearTimeout(fsT);
+  const uid=S.user.id;
+  fsT=setTimeout(function(){
+    FB.db.doc('users/'+uid+'/meta/settings').set({profile:S.profile,tags:TAGS.map(function(n){return {n:n,c:TAGC[n]}}),goals:S.goals,updated:Date.now()},{merge:true})
+      .catch(function(e){console.warn('zui settings save',e);toast(L('eNet'))});
+  },600);
+}
+function fbErr(e){
+  const c=e&&e.code||'';
+  if(c==='auth/email-already-in-use') return L('eExists');
+  if(c==='auth/weak-password') return L('ePolicy');
+  if(c==='auth/invalid-email') return L('eEmail');
+  if(c==='auth/too-many-requests') return L('eLock');
+  if(c==='auth/network-request-failed') return L('eNet');
+  if(c==='auth/popup-closed-by-user'||c==='auth/cancelled-popup-request') return '';
+  if(c==='auth/popup-blocked'||c==='auth/unauthorized-domain') return L('gFail');
+  return L('eBad');
+}
+async function fbSubmit(em,pw){
+  try{
+    if(S.auth.mode==='signup'){
+      const p2=document.getElementById('au-pw2'),pw2=p2?p2.value:'';
+      if(!pwRules(pw,pw2).slice(0,5).every(function(r){return r[1]})) return setAuthErr(L('ePolicy'));
+      if(pw!==pw2) return setAuthErr(L('eMatch'));
+      await FB.auth.createUserWithEmailAndPassword(em,pw);
+    }else{
+      await FB.auth.signInWithEmailAndPassword(em,pw);
+    }
+  }catch(e){setAuthErr(fbErr(e))}
+}
+function fbGoogle(){
+  setAuthErr('');
+  FB.auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(function(e){setAuthErr(fbErr(e))});
+}
+function fbReset(){
+  const ei=document.getElementById('au-email'),em=ei?ei.value.trim().toLowerCase():'';
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)) return setAuthErr(L('eEmail'));
+  FB.auth.sendPasswordResetEmail(em).then(function(){setAuthErr('');toast(L('resetSent'))}).catch(function(e){setAuthErr(fbErr(e))});
+}
+
+/* ---------- accounts: login, sign up, Google, logout (on-device mode) ---------- */
+const GOOGLE_CLIENT_ID=''; /* paste your Google OAuth Client ID here to enable "Continue with Google" */
+const MEM={};
+function lget(k){try{const v=localStorage.getItem(k);if(v!==null) return v}catch(e){}return MEM[k]===undefined?null:MEM[k]}
+function lset(k,v){MEM[k]=v;try{localStorage.setItem(k,v)}catch(e){}}
+function K(n){return 'zui-todo:'+n+(S.user?':'+S.user.id:'')}
+function accLoad(){try{return JSON.parse(lget('zui-todo:accounts')||'{}')||{}}catch(e){return {}}}
+function accSave(a){lset('zui-todo:accounts',JSON.stringify(a))}
+function randSalt(){
+  const b=new Uint8Array(16);
+  try{crypto.getRandomValues(b)}catch(e){for(let i=0;i<16;i++) b[i]=Math.floor(Math.random()*256)}
+  return Array.prototype.map.call(b,function(x){return ('0'+x.toString(16)).slice(-2)}).join('');
+}
+async function hashPw(pw,salt){
+  try{
+    const enc=new TextEncoder(),key=await crypto.subtle.importKey('raw',enc.encode(pw),'PBKDF2',false,['deriveBits']);
+    const bits=await crypto.subtle.deriveBits({name:'PBKDF2',salt:enc.encode(salt),iterations:120000,hash:'SHA-256'},key,256);
+    return 'p1:'+btoa(String.fromCharCode.apply(null,new Uint8Array(bits)));
+  }catch(e){
+    let h=2166136261;const str=salt+':'+pw;
+    for(let r=0;r<3000;r++){for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619)}h=(h+r)|0}
+    return 'f1:'+(h>>>0).toString(36);
+  }
+}
+function pwRules(pw,pw2){
+  return [['r8',pw.length>=8],['rLow',/[a-z]/.test(pw)],['rUp',/[A-Z]/.test(pw)],['rNum',/\d/.test(pw)],['rSym',/[^A-Za-z0-9\s]/.test(pw)],['rMatch',pw.length>0&&pw===pw2]];
+}
+function rulesHtml(pw,pw2){return pwRules(pw,pw2).map(function(r){return '<li class="'+(r[1]?'ok':'')+'"><span>'+(r[1]?'✓':'○')+'</span>'+L(r[0])+'</li>'}).join('')}
+function updateRules(){
+  const u=document.getElementById('au-rules'),a=document.getElementById('au-pw'),b=document.getElementById('au-pw2');
+  if(u&&a&&b) u.innerHTML=rulesHtml(a.value,b.value);
+}
+const GLOGO='<svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.6 5.9c4.4-4.1 7-10.1 7-17.6z"/><path fill="#FBBC05" d="M10.5 28.7A14.5 14.5 0 019.5 24c0-1.6.3-3.2.8-4.7l-7.9-6.1A24 24 0 000 24c0 3.9.9 7.5 2.6 10.8l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.6-5.9c-2.1 1.4-4.9 2.3-8.3 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>';
+function authHtml(){
+  const su=S.auth.mode==='signup';
+  const eye=function(id){return '<button class="eye" type="button" data-act="au-eye" data-id="'+id+'" aria-label="'+L('show')+'">'+svg(IC.eye,18)+'</button>'};
+  return '<div class="auth"><div class="auth-card"><div class="auth-logo"><span class="logo">'+svg(P.check,22)+'</span><span class="dr-name"><strong>Zui</strong> <span>To-Do</span></span></div>'
+   +'<h1>'+(su?L('signup'):L('login'))+'</h1>'
+   +'<button class="gbtn" type="button" data-act="au-google">'+GLOGO+'<span>'+L('withGoogle')+'</span></button>'
+   +'<div class="or"><span>'+L('orEmail')+'</span></div>'
+   +'<label>'+L('email')+'<input id="au-email" class="in" type="email" inputmode="email" autocomplete="email" maxlength="120" value="'+esc(S.auth.email)+'"></label>'
+   +'<label>'+L('pw')+'<span class="pwf"><input id="au-pw" class="in" type="password" maxlength="128" autocomplete="'+(su?'new-password':'current-password')+'">'+eye('au-pw')+'</span></label>'
+   +(su?'<label>'+L('pw2')+'<span class="pwf"><input id="au-pw2" class="in" type="password" maxlength="128" autocomplete="new-password">'+eye('au-pw2')+'</span></label><ul class="rules" id="au-rules">'+rulesHtml('','')+'</ul>':'')
+   +(FB.on&&!su?'<button class="link fgt" type="button" data-act="au-reset">'+L('forgot')+'</button>':'')
+   +'<p class="auth-err" id="au-err" role="alert"></p>'
+   +'<button class="btn primary full" type="button" data-act="au-submit">'+(su?L('signup'):L('login'))+'</button>'
+   +'<p class="auth-sw">'+(su?L('hasAcc'):L('noAcc'))+' <button class="link" type="button" data-act="au-mode" data-v="'+(su?'login':'signup')+'">'+(su?L('login'):L('signup'))+'</button></p>'
+   +'<small class="muted center">'+L(FB.on?'authNoteC':'authNote')+'</small></div></div>';
+}
+function renderAuth(){
+  app.innerHTML='';drawerRoot.innerHTML='';pageRoot.innerHTML='';sheetRoot.innerHTML='';
+  authRoot.innerHTML=(FB.on&&!FB.ready)?'<div class="auth"><p class="muted">'+L('loading')+'</p></div>':authHtml();
+  try{document.documentElement.style.overflow=''}catch(e){}
+}
+function setAuthErr(m){const e=document.getElementById('au-err');if(e) e.textContent=m||''}
+async function authSubmit(){
+  const ei=document.getElementById('au-email'),pi=document.getElementById('au-pw'); if(!ei||!pi) return;
+  const em=ei.value.trim().toLowerCase(),pw=pi.value;
+  S.auth.email=em;setAuthErr('');
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)) return setAuthErr(L('eEmail'));
+  if(FB.on) return fbSubmit(em,pw);
+  const acc=accLoad();
+  if(S.auth.mode==='signup'){
+    const p2=document.getElementById('au-pw2'),pw2=p2?p2.value:'';
+    if(!pwRules(pw,pw2).slice(0,5).every(function(r){return r[1]})) return setAuthErr(L('ePolicy'));
+    if(pw!==pw2) return setAuthErr(L('eMatch'));
+    if(acc[em]) return setAuthErr(L('eExists'));
+    const salt=randSalt();
+    acc[em]={salt:salt,hash:await hashPw(pw,salt),name:em.split('@')[0],created:TODAY,provider:'email'};
+    accSave(acc);
+    finishLogin({id:em,email:em,name:acc[em].name,provider:'email'});
+  }else{
+    if(Date.now()<S.auth.lock) return setAuthErr(L('eLock'));
+    const a=acc[em],h=a&&a.hash?await hashPw(pw,a.salt):null;
+    if(!a||h!==a.hash){S.auth.fails++;if(S.auth.fails>=5){S.auth.lock=Date.now()+30000;S.auth.fails=0}return setAuthErr(L('eBad'))}
+    finishLogin({id:em,email:em,name:a.name,provider:'email'});
+  }
+}
+function finishLogin(u){
+  S.user=u;lset('zui-todo:session',JSON.stringify({user:u}));
+  try{
+    if(!localStorage.getItem('zui-todo:migrated')){
+      ['v1','profile','tags','goals'].forEach(function(n){const v=localStorage.getItem('zui-todo:'+n);if(v&&!localStorage.getItem(K(n))) localStorage.setItem(K(n),v)});
+      localStorage.setItem('zui-todo:migrated',u.id);
+    }
+  }catch(e){}
+  loadUserData();
+  S.view='today';S.tag='all';S.q='';S.menu=false;S.panel=null;
+  authRoot.innerHTML='';render();
+  toast(L('welcome')+', '+((S.profile.nick||S.profile.name||u.email)));
+}
+function logout(){
+  if(FB.on&&FB.auth){FB.auth.signOut();return}
+  lset('zui-todo:session','');
+  S.user=null;S.tasks=[];S.menu=false;S.panel=null;S.sheet=null;
+  S.auth={mode:'login',email:'',err:'',fails:0,lock:0};
+  authRoot.innerHTML='';render();
+}
+function loadGsi(){
+  return new Promise(function(res,rej){
+    if(window.google&&google.accounts&&google.accounts.oauth2) return res();
+    const sc=document.createElement('script');sc.src='https://accounts.google.com/gsi/client';sc.async=true;
+    sc.onload=function(){res()};sc.onerror=function(){rej(new Error('gsi'))};
+    document.head.appendChild(sc);
+  });
+}
+function googleLogin(){
+  if(FB.on) return fbGoogle();
+  if(!GOOGLE_CLIENT_ID) return setAuthErr(L('gNoId'));
+  setAuthErr('');
+  loadGsi().then(function(){
+    const tc=google.accounts.oauth2.initTokenClient({client_id:GOOGLE_CLIENT_ID,scope:'openid email profile',callback:function(r){
+      if(!r||r.error||!r.access_token) return setAuthErr(L('gFail'));
+      fetch('https://www.googleapis.com/oauth2/v3/userinfo',{headers:{Authorization:'Bearer '+r.access_token}})
+        .then(function(x){return x.json()})
+        .then(function(u){if(!u||!u.email) throw new Error('no email');finishLogin({id:String(u.email).toLowerCase(),email:String(u.email).toLowerCase(),name:u.name||'',photo:u.picture||'',provider:'google'})})
+        .catch(function(){setAuthErr(L('gFail'))});
+    },error_callback:function(){setAuthErr(L('gFail'))}});
+    tc.requestAccessToken();
+  }).catch(function(){setAuthErr(L('gFail'))});
+}
+function isWide(){return !!(window.matchMedia&&window.matchMedia('(min-width:1100px)').matches)}
+function acctCard(){
+  const u=S.user; if(!u) return '';
+  const nm=(S.profile.nick||S.profile.name||u.name||u.email).trim(),ini=(nm.charAt(0)||'Z').toUpperCase();
+  return '<div class="pcard pad acct"><span class="avatar">'+(S.profile.photo?'<img alt="" src="'+esc(S.profile.photo)+'">':esc(ini))+'</span><div class="pwho"><strong>'+esc(nm)+'</strong><span>'+esc(u.email)+'</span><small>'+L('signedAs')+' '+(u.provider==='google'?'Google':'Email')+'</small></div></div>';
+}
+
 /* ---------- goals (daily / weekly / monthly / yearly) ---------- */
-function saveGoals(){try{localStorage.setItem('zui-todo:goals',JSON.stringify(S.goals))}catch(e){}}
+function saveGoals(){try{localStorage.setItem(K('goals'),JSON.stringify(S.goals))}catch(e){}cloudSettings()}
 const SPANS=['d','w','m','y'];
 function spanName(k){return L({d:'gDaily',w:'gWeekly',m:'gMonthly',y:'gYearly'}[k])}
 function spanOpts(cur){return '<option value="">'+L('spanNone')+'</option>'+SPANS.map(function(k){return '<option value="'+k+'"'+(cur===k?' selected':'')+'>'+spanName(k)+'</option>'}).join('')}
@@ -927,6 +1189,15 @@ const T3={
  cf_d:['Lanjutan dari kemarin','Sambungan semalam','Carried over from yesterday'],cf_w:['Lanjutan dari pekan lalu','Sambungan minggu lalu','Carried over from last week'],cf_m:['Lanjutan dari bulan lalu','Sambungan bulan lalu','Carried over from last month'],cf_y:['Lanjutan dari tahun lalu','Sambungan tahun lalu','Carried over from last year'],
  carryHint:['Tugas yang belum selesai otomatis ikut ke periode berikutnya, tidak hilang.','Tugas belum selesai diteruskan ke tempoh seterusnya.','Unfinished tasks automatically move on to the next period.'],
  targetAll:['Target semua tugas selesai','Sasaran semua tugas selesai','Goal for all completed tasks'],
+ login:['Masuk','Log masuk','Sign in'],signup:['Daftar','Daftar','Sign up'],logout:['Keluar','Log keluar','Log out'],pw:['Sandi','Kata laluan','Password'],pw2:['Konfirmasi sandi','Sahkan kata laluan','Confirm password'],
+ orEmail:['atau dengan email','atau dengan e-mel','or with email'],withGoogle:['Masuk dengan Google','Teruskan dengan Google','Continue with Google'],
+ r8:['Minimal 8 karakter','Sekurang-kurangnya 8 aksara','At least 8 characters'],rLow:['Huruf kecil (a–z)','Huruf kecil (a–z)','Lowercase (a–z)'],rUp:['Huruf besar (A–Z)','Huruf besar (A–Z)','Uppercase (A–Z)'],rNum:['Angka (0–9)','Nombor (0–9)','Number (0–9)'],rSym:['Karakter (!@#$…)','Aksara khas (!@#$…)','Symbol (!@#$…)'],rMatch:['Konfirmasi cocok','Pengesahan sepadan','Passwords match'],
+ eEmail:['Email tidak valid.','E-mel tidak sah.','Invalid email.'],ePolicy:['Sandi belum memenuhi semua syarat.','Kata laluan belum menepati syarat.','Password does not meet all requirements.'],eMatch:['Konfirmasi sandi tidak sama.','Pengesahan tidak sepadan.','Passwords do not match.'],
+ eExists:['Email ini sudah terdaftar. Silakan masuk.','E-mel ini sudah didaftarkan. Sila log masuk.','This email is already registered. Please sign in.'],eBad:['Email atau sandi salah.','E-mel atau kata laluan salah.','Wrong email or password.'],eLock:['Terlalu banyak percobaan. Coba lagi sebentar.','Terlalu banyak cubaan. Cuba sebentar lagi.','Too many attempts. Try again shortly.'],
+ gNoId:['Login Google belum diaktifkan: isi GOOGLE_CLIENT_ID di skrip.','Log masuk Google belum diaktifkan: isi GOOGLE_CLIENT_ID dalam skrip.','Google sign-in is not set up: fill in GOOGLE_CLIENT_ID in the script.'],gFail:['Google tidak bisa dimuat di sini. Coba di situs yang sudah di-host.','Google tidak dapat dimuatkan di sini. Cuba di laman yang dihoskan.','Google could not load here. Try it on a hosted site.'],
+ welcome:['Selamat datang','Selamat datang','Welcome'],signedAs:['Masuk dengan','Log masuk dengan','Signed in with'],authNote:['Akun dan data disimpan di perangkat ini.','Akaun dan data disimpan pada peranti ini.','Your account and data are stored on this device.'],noAcc:['Belum punya akun?','Belum ada akaun?','No account yet?'],hasAcc:['Sudah punya akun?','Sudah ada akaun?','Already have an account?'],show:['Tampilkan sandi','Tunjuk kata laluan','Show password'],hide:['Sembunyikan sandi','Sembunyi kata laluan','Hide password'],
+ eNet:['Tidak bisa terhubung. Periksa internet.','Tidak dapat bersambung. Semak internet.','Cannot connect. Check your internet.'],forgot:['Lupa sandi?','Lupa kata laluan?','Forgot password?'],resetSent:['Tautan reset sandi dikirim ke email kamu.','Pautan tetapan semula dihantar ke e-mel anda.','Password reset link sent to your email.'],
+ authNoteC:['Data tersimpan aman di akunmu.','Data disimpan dengan selamat dalam akaun anda.','Your data is safely stored in your account.'],fbFail:['Firebase tidak bisa dimuat. Memakai mode di perangkat.','Firebase tidak dapat dimuatkan. Guna mod peranti.','Firebase could not load. Using on-device mode.'],loading:['Memuat…','Memuatkan…','Loading…'],
  autosave:['Tersimpan otomatis di perangkat ini.','Disimpan automatik pada peranti ini.','Saved automatically on this device.']
 };
 const LI={id:0,ms:1,en:2};
@@ -938,10 +1209,12 @@ function hexOf(c){
   let v=getComputedStyle(document.documentElement).getPropertyValue(m[1]).trim();
   return /^#[0-9a-f]{6}$/i.test(v)?v:'#2A4FEE';
 }
-function saveTags(){try{localStorage.setItem('zui-todo:tags',JSON.stringify(TAGS.map(function(n){return {n:n,c:TAGC[n]}})))}catch(e){}}
+function saveTags(){try{localStorage.setItem(K('tags'),JSON.stringify(TAGS.map(function(n){return {n:n,c:TAGC[n]}})))}catch(e){}cloudSettings()}
+const TAGS0=TAGS.slice(),TAGC0=Object.assign({},TAGC);
+function resetTags(){TAGS.length=0;TAGS0.forEach(function(n){TAGS.push(n)});Object.keys(TAGC).forEach(function(k){delete TAGC[k]});Object.assign(TAGC,TAGC0)}
 function loadTags(){
   try{
-    const a=JSON.parse(localStorage.getItem('zui-todo:tags')||'null');
+    const a=JSON.parse(localStorage.getItem(K('tags'))||'null');
     if(Array.isArray(a)&&a.length){
       TAGS.length=0;Object.keys(TAGC).forEach(function(k){delete TAGC[k]});
       a.forEach(function(x){const n=String(x&&x.n||'').trim().slice(0,20);if(n&&TAGS.indexOf(n)<0){TAGS.push(n);TAGC[n]=/^#[0-9a-f]{6}$/i.test(x.c)||/^var\(--c-\w+\)$/.test(x.c)?x.c:'#2A4FEE'}});
@@ -951,7 +1224,7 @@ function loadTags(){
   }catch(e){}
 }
 function profDefaults(){return {name:'',nick:'',user:'',email:'',phone:'',birth:'',gender:'',city:'',job:'',org:'',bio:'',goal:5,remind:'',photo:'',since:TODAY}}
-function saveProfile(){try{localStorage.setItem('zui-todo:profile',JSON.stringify(S.profile))}catch(x){toast('Foto terlalu besar untuk disimpan.')}}
+function saveProfile(){try{localStorage.setItem(K('profile'),JSON.stringify(S.profile))}catch(x){toast('Foto terlalu besar untuk disimpan.')}cloudSettings()}
 function moveTasks(from,to){
   ensureReal();
   S.tasks.forEach(function(t,i){if(t.tag===from){S.tasks[i]=Object.assign({},t,{tag:to});store.put(S.tasks[i])}});
@@ -1013,14 +1286,15 @@ function renderSettings(){
   const seg=function(act,list,cur,label){return '<div class="seg full" role="group" aria-label="'+label+'">'+list.map(function(o){return '<button type="button" data-act="'+act+'" data-v="'+o[0]+'" aria-pressed="'+(cur===o[0])+'">'+o[1]+'</button>'}).join('')+'</div>'};
   const info=function(v,ic,col,label){return setRow(ic,col,label,'info',v,'',' aria-expanded="'+(S.info===v)+'"')+(S.info===v?'<p class="infot">'+L(v+'T')+'</p>':'')};
   const sw='<span class="sw" role="switch" aria-checked="'+S.showDone+'"></span>';
-  const body='<div class="pcard"><div class="rw static"><span class="ri" style="color:#3B82F6">'+svg(IC.globe,26)+'</span><span class="rl">'+L('language')+'</span></div><div class="segwrap">'+seg('lang',[['id','Indonesia'],['ms','Malaysia'],['en','English']],S.lang,L('language'))+'</div>'
+  const body=acctCard()+'<div class="pcard"><div class="rw static"><span class="ri" style="color:#3B82F6">'+svg(IC.globe,26)+'</span><span class="rl">'+L('language')+'</span></div><div class="segwrap">'+seg('lang',[['id','Indonesia'],['ms','Malaysia'],['en','English']],S.lang,L('language'))+'</div>'
    +'<div class="rw static"><span class="ri" style="color:#F59E0B">'+svg(IC.sun,26)+'</span><span class="rl">'+L('theme')+'</span></div><div class="segwrap">'+seg('theme',[['auto',L('auto')],['light',L('light')],['dark',L('dark')]],S.theme,L('theme'))+'</div></div>'
    +'<div class="pcard">'+setRow('eye','#22C55E',L('showDone'),'set-done','',sw)+'</div>'
    +'<div class="pcard">'+info('faq','help','#EC4899',L('faq'))+info('terms','doc','#3B82F6',L('terms'))+info('privacy','shield','#F97316',L('privacy'))+'</div>'
    +'<div class="pcard">'+setRow('card','#14B8A6',L('manage'),'sub')+setRow('share','#22C55E',L('share'),'share')+setRow('chat','#EAB308',L('feedback'),'feedback')+'</div>'
    +(S.demo?'<div class="pcard">'+setRow('tag','#94A3B8',L('clearDemo'),'set-clear-demo')+'</div>':'')
    +'<button class="pcard dng" type="button" data-act="set-clear-done"><span class="lbl">'+L('clearDone')+'</span></button>'
-   +'<small class="muted center">Zui To-Do v2.3</small>';
+   +'<button class="pcard dng" type="button" data-act="logout" style="margin-top:12px"><span class="lbl">'+L('logout')+'</span></button>'
+   +'<small class="muted center">Zui To-Do v3.2</small>';
   putPanel(panelShell(L('settings'),body));
 }
 function renderCats(){
@@ -1059,7 +1333,8 @@ function renderProfile(){
     +'<div class="pcard pad"><h3>'+L('secWork')+'</h3><div class="pg">'+f('job',L('job'))+f('org',L('org'))+'</div><label class="pbio">'+L('bio')+'<textarea class="in" data-prof="bio" rows="3" maxlength="200">'+esc(p.bio)+'</textarea></label></div>'
     +'<div class="pcard pad"><h3>'+L('secPref')+'</h3><div class="pg">'+f('goal',L('goal'),'number',' min="1" max="50"')+f('remind',L('remind'),'time')+'</div></div>'
     +'<small class="muted center">'+L('autosave')+'</small>'
-    +'<button class="pcard dng" type="button" data-act="prof-reset"><span class="lbl">'+L('resetProfile')+'</span></button>';
+    +'<button class="pcard dng" type="button" data-act="logout" style="margin-top:12px"><span class="lbl">'+L('logout')+'</span></button>'
+    +'<button class="pcard dng" type="button" data-act="prof-reset" style="margin-top:0"><span class="lbl">'+L('resetProfile')+'</span></button>';
   putPanel(panelShell(L('profile'),body));
 }
 function shareApp(){
@@ -1104,8 +1379,9 @@ document.addEventListener('change',function(e){
     r.readAsDataURL(t.files[0]);
   }
 });
-document.addEventListener('input',function(e){const t=e.target;if(t.id==='g-title') S.gTitle=t.value; else if(t.id==='g-due') S.gDue=t.value});
+document.addEventListener('input',function(e){const t=e.target;if(t.id==='g-title') S.gTitle=t.value; else if(t.id==='g-due') S.gDue=t.value; else if(t.id==='au-pw'||t.id==='au-pw2') updateRules()});
 document.addEventListener('keydown',function(e){
+  if(e.key==='Enter'&&/^au-(email|pw|pw2)$/.test(e.target.id||'')){e.preventDefault();authSubmit();return}
   if(e.key==='Enter'&&e.target.id==='g-title'){e.preventDefault();goalAdd();return}
   if(e.key==='Enter'&&e.target.id==='cat-new'){e.preventDefault();catAdd()}
   else if(e.key==='Enter'&&e.target.dataset&&e.target.dataset.cat==='name'){e.target.blur()}
@@ -1190,6 +1466,12 @@ document.addEventListener('click',function(e){
   else if(a==='photo-pick'){const f=document.getElementById('pf-photo');if(f)f.click()}
   else if(a==='photo-del'){S.profile.photo='';saveProfile();renderPanel()}
   else if(a==='prof-reset'){if(armed(el,L('resetProfile'),L('tapAgain'))){S.profile=profDefaults();saveProfile();renderPanel()}}
+  else if(a==='au-mode'){S.auth.mode=el.dataset.v;renderAuth()}
+  else if(a==='au-submit'){authSubmit()}
+  else if(a==='au-google'){googleLogin()}
+  else if(a==='au-eye'){const i=document.getElementById(el.dataset.id);if(i){const sh=i.type==='password';i.type=sh?'text':'password';el.setAttribute('aria-label',L(sh?'hide':'show'))}}
+  else if(a==='logout'){logout()}
+  else if(a==='au-reset'){fbReset()}
   else if(a==='goal-step'){goalStep(el.dataset.k,+el.dataset.dir)}
   else if(a==='goal-go'){const g=document.querySelector('.gslides');S.gi=+el.dataset.i;if(g)g.scrollTo({left:S.gi*g.clientWidth,behavior:'smooth'});document.querySelectorAll('.gdots button').forEach(function(b,j){b.classList.toggle('on',j===S.gi)})}
   else if(a==='lang'){S.lang=el.dataset.v;try{localStorage.setItem('zui-todo:lang',S.lang)}catch(x){}render();renderPanel()}
@@ -1288,16 +1570,31 @@ document.addEventListener('drop',function(e){
 document.addEventListener('dragend',function(){document.querySelectorAll('.col.over').forEach(function(x){x.classList.remove('over')})});
 
 /* ---------- start ---------- */
-try{const lg=localStorage.getItem('zui-todo:lang');if(lg==='id'||lg==='ms'||lg==='en') S.lang=lg;const pf=JSON.parse(localStorage.getItem('zui-todo:profile')||'null');S.profile=Object.assign(profDefaults(),pf&&typeof pf==='object'?pf:{});if(!pf) saveProfile()}catch(e){}
-loadTags();
-try{const gl=JSON.parse(localStorage.getItem('zui-todo:goals')||'null');if(gl) ['w','m','y'].forEach(function(k){if(+gl[k]>0) S.goals[k]=Math.floor(+gl[k])})}catch(e){}
+try{const lg=localStorage.getItem('zui-todo:lang');if(lg==='id'||lg==='ms'||lg==='en') S.lang=lg}catch(e){}
 try{const th=localStorage.getItem('zui-todo:theme');if(th==='light'||th==='dark'||th==='auto') S.theme=th}catch(e){}
 applyTheme(S.theme);
-const saved=store.lsLoad();
-if(saved&&Array.isArray(saved.tasks)){S.tasks=saved.tasks.map(norm);S.demo=false}
-else{S.tasks=demoTasks();S.demo=true}
+function loadUserData(skipTasks){
+  S.profile=profDefaults();
+  try{const pf=JSON.parse(localStorage.getItem(K('profile'))||'null');if(pf&&typeof pf==='object') S.profile=Object.assign(profDefaults(),pf)}catch(e){}
+  if(S.user){
+    if(!S.profile.email) S.profile.email=S.user.email;
+    if(!S.profile.name&&S.user.name) S.profile.name=S.user.name;
+    if(!S.profile.photo&&S.user.photo) S.profile.photo=S.user.photo;
+  }
+  saveProfile();
+  S.goals={w:15,m:60,y:600};
+  try{const gl=JSON.parse(localStorage.getItem(K('goals'))||'null');if(gl) ['w','m','y'].forEach(function(k){if(+gl[k]>0) S.goals[k]=Math.floor(+gl[k])})}catch(e){}
+  resetTags();S.qa.tag=TAGS[0];loadTags();
+  if(skipTasks) return;
+  const saved=store.lsLoad();
+  if(saved&&Array.isArray(saved.tasks)){S.tasks=saved.tasks.map(norm);S.demo=false}
+  else{S.tasks=demoTasks();S.demo=true}
+}
+function restoreLocalSession(){try{const ss=JSON.parse(lget('zui-todo:session')||'null');if(ss&&ss.user&&ss.user.id){S.user=ss.user;loadUserData()}}catch(e){}}
+if(!FB.on) restoreLocalSession();
+try{const mq=window.matchMedia('(min-width:1100px)');const f=function(){render()};if(mq.addEventListener) mq.addEventListener('change',f); else if(mq.addListener) mq.addListener(f)}catch(e){}
 render();
-initStore();
+if(FB.on) fbInit().catch(function(e){console.warn('firebase',e);FB.on=false;FB.ready=true;toast(L('fbFail'));authRoot.innerHTML='';restoreLocalSession();render()});
 })();
 </script>
 
