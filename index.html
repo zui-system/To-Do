@@ -358,7 +358,7 @@ button.rw:hover{background:var(--surface-2)}
 .gdue .in{font:400 15px var(--font-body);letter-spacing:0;text-transform:none}
 .ghint{margin:2px 2px 8px;font-size:13px}
 .page .sec{margin-bottom:14px}
-.auth{position:fixed;inset:0;z-index:90;background:var(--bg);overflow-y:auto;display:grid;place-items:center;padding:20px}
+.auth{position:fixed;inset:0;z-index:90;background:transparent;overflow-y:auto;display:grid;place-items:center;padding:20px}
 .auth-card{width:min(420px,100%);background:var(--surface);border-radius:26px;padding:28px 24px;display:grid;gap:14px;box-shadow:var(--shadow)}
 .auth-logo{display:flex;align-items:center;gap:10px}
 .auth-card h1{font:800 30px var(--font-display);letter-spacing:-.02em}
@@ -484,9 +484,87 @@ html.cr-xl :is(.pcard,.gcard,.plan){border-radius:30px!important}
 html.cr-xl :is(.btn,.tb-out){border-radius:999px!important}
 @media (max-width:760px){.plans{grid-template-columns:minmax(0,1fr)}.g2s{grid-template-columns:minmax(0,1fr)}}
 @media (max-width:480px){.tb-out .lbl{display:none}.tb-out{padding:8px}.tb-out[data-armed] .lbl{display:inline}}
-@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+/* animated logo: the check draws itself, the "today" dot breathes; phase is synced across re-renders via a negative delay */
+.logo{overflow:visible}
+.logo .lg{overflow:visible}
+.logo .lg-ck{stroke-dasharray:22;stroke-dashoffset:22;animation:lg-draw 6s cubic-bezier(.6,0,.3,1) infinite;animation-delay:inherit}
+.logo .lg-sp{fill:var(--accent-ink);transform-origin:19px 5px;transform-box:view-box;opacity:0;animation:lg-spark 6s ease-out infinite;animation-delay:inherit}
+.logo{animation:lg-pop 6s cubic-bezier(.3,1.6,.5,1) infinite}
+.logo::after{animation:lg-dot 2.4s ease-in-out infinite}
+.brand:hover .logo,.drbrand:hover .logo{animation:lg-wig .6s ease-in-out}
+@keyframes lg-draw{0%,6%{stroke-dashoffset:22}22%,84%{stroke-dashoffset:0}94%,100%{stroke-dashoffset:-22}}
+@keyframes lg-spark{0%,18%{opacity:0;transform:scale(.2) rotate(0)}24%{opacity:1;transform:scale(1.15) rotate(45deg)}36%,100%{opacity:0;transform:scale(.4) rotate(90deg)}}
+@keyframes lg-pop{0%,18%,30%,100%{transform:none}22%{transform:scale(1.08) rotate(-4deg)}26%{transform:scale(.97) rotate(1deg)}}
+@keyframes lg-dot{0%,100%{transform:scale(1);box-shadow:0 0 0 0 color-mix(in srgb,var(--mark) 60%,transparent)}50%{transform:scale(1.15);box-shadow:0 0 0 5px transparent}}
+@keyframes lg-wig{25%{transform:rotate(-8deg)}50%{transform:rotate(6deg)}75%{transform:rotate(-3deg)}}
+/* animated background illustration: fixed behind everything, tinted by the active theme */
+.bg-art{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
+.bg-art svg{position:absolute;inset:0;width:100%;height:100%}
+.bg-art .blob{position:absolute;border-radius:50%;filter:blur(60px);opacity:.55;will-change:transform}
+.bg-art .b1{width:46vmax;height:46vmax;left:-14vmax;top:-16vmax;background:var(--accent-soft);animation:ba-float1 26s ease-in-out infinite}
+.bg-art .b2{width:30vmax;height:30vmax;right:-10vmax;top:22vh;background:color-mix(in srgb,var(--mark) 45%,transparent);opacity:.35;animation:ba-float2 32s ease-in-out infinite}
+.bg-art .b3{width:38vmax;height:38vmax;left:20vw;bottom:-22vmax;background:color-mix(in srgb,var(--c-belajar) 22%,transparent);opacity:.4;animation:ba-float1 38s ease-in-out infinite reverse}
+.ba-f{fill:var(--surface);stroke:var(--line);stroke-width:1.5}
+.ba-l{stroke:var(--line);stroke-width:5;stroke-linecap:round;fill:none}
+.ba-a{fill:var(--accent)}.ba-as{stroke:var(--accent);fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.ba-ai{stroke:var(--accent-ink);fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.ba-m{fill:var(--mark)}.ba-g{fill:var(--good)}.ba-p{fill:var(--c-pribadi)}
+.ba-d{stroke:var(--ink-3);stroke-width:2;stroke-dasharray:2 9;stroke-linecap:round;fill:none;opacity:.5;animation:ba-dash 30s linear infinite}
+.ba-o{opacity:.55}
+.ba-fl{animation:ba-bob 9s ease-in-out infinite}
+.ba-fl.s2{animation-duration:11s;animation-delay:-3s}.ba-fl.s3{animation-duration:13s;animation-delay:-6s}.ba-fl.s4{animation-duration:10s;animation-delay:-2s}
+.ba-tw{animation:ba-tw 3.6s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+.ba-tw.s2{animation-delay:-1.2s}.ba-tw.s3{animation-delay:-2.4s}
+.ba-ck{stroke-dasharray:30;stroke-dashoffset:30;animation:ba-ck 7s ease-in-out infinite}
+.ba-ck.s2{animation-delay:-2.3s}.ba-ck.s3{animation-delay:-4.6s}
+.ba-spin{animation:ba-spin 40s linear infinite;transform-box:fill-box;transform-origin:center}
+.ba-hand{animation:ba-spin 12s linear infinite;transform-box:view-box}
+@keyframes ba-float1{50%{transform:translate(6vmax,4vmax) scale(1.08)}}
+@keyframes ba-float2{50%{transform:translate(-5vmax,-6vmax) scale(.92)}}
+@keyframes ba-bob{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-14px) rotate(1.5deg)}}
+@keyframes ba-tw{0%,100%{opacity:.25;transform:scale(.6)}50%{opacity:1;transform:scale(1)}}
+@keyframes ba-ck{0%,10%{stroke-dashoffset:30}30%,80%{stroke-dashoffset:0}95%,100%{stroke-dashoffset:30}}
+@keyframes ba-spin{to{transform:rotate(360deg)}}
+@keyframes ba-dash{to{stroke-dashoffset:-220}}
+@media (max-width:700px){.bg-art .ba-hide-s{display:none}}
+@media (max-aspect-ratio:4/5){.bg-art .mv1{transform:translate(585px,-170px) scale(.75)}.bg-art .mv2{transform:translate(-250px,580px) scale(.75)}.bg-art .mv3{transform:translate(-43px,292px) scale(.8)}.bg-art .ba-d{opacity:.3}}
+@media (prefers-reduced-motion:reduce){*,*::after{transition:none!important;animation:none!important}.logo .lg-ck{stroke-dashoffset:0}}
 </style>
 
+<div class="bg-art" aria-hidden="true"><i class="blob b1"></i><i class="blob b2"></i><i class="blob b3"></i>
+<svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
+ <path class="ba-d" d="M120 640C260 520 330 700 470 600S700 420 820 520 1020 640 1120 470"/>
+ <path class="ba-d" d="M60 180C200 120 260 260 400 200S620 60 760 140"/>
+ <g class="ba-o">
+  <g class="ba-fl"><g class="mv1"><g transform="translate(70 300) rotate(-8)">
+   <rect class="ba-f" width="170" height="200" rx="18"/><rect class="ba-a" x="20" y="-10" width="60" height="22" rx="8"/>
+   <circle class="ba-f" cx="34" cy="62" r="11"/><path class="ba-l" d="M58 62h86"/>
+   <circle class="ba-a" cx="34" cy="104" r="11"/><path class="ba-ai ba-ck" d="M28 104l4.5 4.5L41 99" style="stroke-dasharray:20"/><path class="ba-l" d="M58 104h70"/>
+   <circle class="ba-f" cx="34" cy="146" r="11"/><path class="ba-l" d="M58 146h50"/>
+  </g></g></g>
+  <g class="ba-fl s2"><g class="mv2"><g transform="translate(960 90) rotate(7)">
+   <rect class="ba-f" width="160" height="150" rx="18"/><path class="ba-p" d="M0 18a18 18 0 0118-18h124a18 18 0 0118 18v22H0z"/>
+   <g class="ba-l" style="stroke-width:4"><path d="M24 70h1M56 70h1M88 70h1M120 70h1M24 100h1M88 100h1M120 100h1M24 128h1M56 128h1"/></g>
+   <rect class="ba-m" x="45" y="88" width="24" height="24" rx="7"/>
+  </g></g></g>
+  <g class="ba-fl s3"><g class="mv3"><g transform="translate(980 560)">
+   <circle class="ba-f" r="62"/><circle cx="0" cy="0" r="50" fill="none" stroke="var(--line)" stroke-width="2" stroke-dasharray="2 11.1"/>
+   <path class="ba-as" d="M0 0V-34"/><path class="ba-as ba-hand" d="M0 0L26 12"/><circle class="ba-a" r="5"/>
+  </g></g></g>
+  <g class="ba-fl s4 ba-hide-s"><g transform="translate(470 60) rotate(-4)">
+   <rect class="ba-f" width="210" height="64" rx="16"/><circle class="ba-g" cx="34" cy="32" r="14"/><path class="ba-ai ba-ck s2" d="M27 32l5 5 9-10" style="stroke:#fff;stroke-dasharray:22"/><path class="ba-l" d="M62 32h120"/>
+  </g></g>
+  <g class="ba-fl s2"><g transform="translate(560 690) rotate(3)">
+   <rect class="ba-f" width="200" height="64" rx="16"/><circle class="ba-a" cx="34" cy="32" r="14"/><path class="ba-ai ba-ck s3" d="M27 32l5 5 9-10" style="stroke-dasharray:22"/><path class="ba-l" d="M62 32h100"/>
+  </g></g>
+ </g>
+ <g class="ba-spin" style="opacity:.25"><circle cx="330" cy="460" r="38" fill="none" stroke="var(--accent)" stroke-width="2" stroke-dasharray="6 10"/></g>
+ <path class="ba-m ba-tw" d="M860 330l6 14 14 6-14 6-6 14-6-14-14-6 14-6z"/>
+ <path class="ba-a ba-tw s2" d="M280 70l4 10 10 4-10 4-4 10-4-10-10-4 10-4z" style="opacity:.6"/>
+ <path class="ba-m ba-tw s3" d="M420 520l5 12 12 5-12 5-5 12-5-12-12-5 12-5z"/>
+ <path class="ba-a ba-tw s3 ba-hide-s" d="M1130 360l4 10 10 4-10 4-4 10-4-10-10-4 10-4z"/>
+ <circle class="ba-p ba-tw s2" cx="760" cy="250" r="5"/><circle class="ba-g ba-tw" cx="200" cy="560" r="5"/>
+</svg></div>
 <div class="app" id="app"></div>
 <div id="drawer-root"></div>
 <div id="sheet-root"></div><div id="page-root"></div><div id="auth-root"></div>
@@ -555,6 +633,7 @@ const P={
   trash:'<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',
   out:'<path d="M14 4h4a2 2 0 012 2v12a2 2 0 01-2 2h-4"/><path d="M10 16l-4-4 4-4M6 12h10"/>'
 };
+const logo=sz=>'<svg class="lg" width="'+sz+'" height="'+sz+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="animation-delay:-'+(Date.now()%6000)+'ms"><path class="lg-ck" d="M5 12.5l4.5 4.5L19 7.5"/><path class="lg-sp" stroke="none" d="M19 2l.9 2.1L22 5l-2.1.9L19 8l-.9-2.1L16 5l2.1-.9z"/></svg>';
 const svg=(p,sz)=>'<svg width="'+(sz||20)+'" height="'+(sz||20)+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+p+'</svg>';
 
 /* ---------- sample data (shown until the first change) ---------- */
@@ -889,7 +968,7 @@ function pill(label,color,act,v,aria){
   return '<span class="fpill"'+(color?' style="--c:'+color+'"':'')+'>'+(color?'<i></i>':'')+'<span>'+label+'</span><button type="button" data-act="'+act+'"'+(v?' data-v="'+v+'"':'')+' aria-label="'+aria+'">'+svg(P.close,12)+'</button></span>';
 }
 function topbar(){
-  let h='<div class="topbar"><button id="brand-btn" class="brand" type="button" data-act="menu" aria-haspopup="dialog" aria-expanded="'+S.menu+'" aria-label="'+L('openMenu')+'"><span class="logo">'+svg(P.check,20)+'</span><span class="wm"><strong>Zui</strong> <span>To-Do</span></span></button>';
+  let h='<div class="topbar"><button id="brand-btn" class="brand" type="button" data-act="menu" aria-haspopup="dialog" aria-expanded="'+S.menu+'" aria-label="'+L('openMenu')+'"><span class="logo" style="animation-delay:-'+(Date.now()%6000)+'ms">'+logo(20)+'</span><span class="wm"><strong>Zui</strong> <span>To-Do</span></span></button>';
   if(S.tag!=='all') h+=pill(L('tags')+': '+esc(S.tag),TAGC[S.tag],'tag','all',L('clearTag'));
   if(S.q.trim()) h+=pill(L('searchP')+': '+esc(S.q.trim()),'','clear-q','',L('clearQ'));
   h+='<button class="tb-out" type="button" data-act="logout" title="'+L('logout')+'" aria-label="'+L('logout')+'">'+svg(P.out,18)+'<span class="lbl">'+L('logout')+'</span></button>';
@@ -908,7 +987,7 @@ function drawerHtml(wide){
   const tags='<button class="di'+(S.tag==='all'?' on':'')+'" type="button" data-act="tag" data-v="all" aria-pressed="'+(S.tag==='all')+'"><span class="dot" style="--c:var(--ink-3)"></span>'+L('all')+'<em>'+openN('all')+'</em></button>'
     +TAGS.map(function(g){return '<button class="di'+(S.tag===g?' on':'')+'" type="button" data-act="tag" data-v="'+esc(g)+'" aria-pressed="'+(S.tag===g)+'"><span class="dot" style="--c:'+TAGC[g]+'"></span>'+esc(g)+'<em>'+openN(g)+'</em></button>'}).join('')+'<button class="di" type="button" data-act="cats"><span class="ic">'+svg(P.plus,20)+'</span>'+L('manageTags')+'</button>';
   return (wide?'':'<div class="scrim2" data-act="menu-close"></div>')+'<aside class="drawer'+(wide?' dock':(S.menuFresh?' in':''))+'"'+(wide?'':' role="dialog" aria-modal="true"')+' aria-label="'+L('menu')+'">'
-    +'<div class="dr-head"><button id="dr-close" class="drbrand" type="button" data-act="menu-close" aria-label="'+L('closeMenu')+'"><span class="logo">'+svg(P.check,20)+'</span><span class="dr-name"><strong>Zui</strong> <span>To-Do</span></span></button>'
+    +'<div class="dr-head"><button id="dr-close" class="drbrand" type="button" data-act="menu-close" aria-label="'+L('closeMenu')+'"><span class="logo" style="animation-delay:-'+(Date.now()%6000)+'ms">'+logo(20)+'</span><span class="dr-name"><strong>Zui</strong> <span>To-Do</span></span></button>'
     +'<button class="x" type="button" data-act="open-profile" aria-label="'+L('profile')+'">'+svg(P.user,22)+'</button><button class="x" type="button" data-act="open-settings" aria-label="'+L('settings')+'">'+svg(P.gear,22)+'</button>'
     +'</div>'
     +'<label class="search">'+svg(P.search,18)+'<input id="q" type="search" placeholder="'+L('search')+'" aria-label="'+L('search')+'" value="'+esc(S.q)+'"></label>'
@@ -1091,7 +1170,7 @@ const GLOGO='<svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
 function authHtml(){
   const su=S.auth.mode==='signup';
   const eye=function(id){return '<button class="eye" type="button" data-act="au-eye" data-id="'+id+'" aria-label="'+L('show')+'">'+svg(IC.eye,18)+'</button>'};
-  return '<div class="auth"><div class="auth-card"><div class="auth-logo"><span class="logo">'+svg(P.check,22)+'</span><span class="dr-name"><strong>Zui</strong> <span>To-Do</span></span></div>'
+  return '<div class="auth"><div class="auth-card"><div class="auth-logo"><span class="logo" style="animation-delay:-'+(Date.now()%6000)+'ms">'+logo(22)+'</span><span class="dr-name"><strong>Zui</strong> <span>To-Do</span></span></div>'
    +'<h1>'+(su?L('signup'):L('login'))+'</h1>'
    +'<button class="gbtn" type="button" data-act="au-google">'+GLOGO+'<span>'+L('withGoogle')+'</span></button>'
    +'<div class="or"><span>'+L('orEmail')+'</span></div>'
