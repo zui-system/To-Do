@@ -97,7 +97,7 @@ Kebijakan ini menjelaskan data apa yang dikumpulkan ZUI To-Do, untuk apa, dan ba
 
 ## 1. Data yang kami kumpulkan
 
-- **Data akun:** nama, email, dan kata sandi. Kata sandi dikelola oleh Firebase Authentication dan tidak bisa kami lihat. Bila kamu masuk dengan Google, kami menerima nama, email, dan foto akun Google-mu.
+- **Data akun:** nama, email, dan kata sandi. Kata sandi dikelola oleh Firebase Authentication dan tidak bisa kami lihat. Bila kamu masuk dengan Google, kami menerima nama dan email akun Google-mu.
 - **Profil (opsional):** nama lengkap, nama panggilan, username, tanggal lahir, jenis kelamin, telepon, kota atau negara, pekerjaan, instansi atau sekolah, bio, foto profil, target tugas per hari, dan jam pengingat. Semua bidang ini boleh dikosongkan.
 - **Data yang kamu masukkan:** tugas beserta catatan, prioritas, tenggat, dan statusnya, kategori, serta target.
 - **Pengaturan:** bahasa, tema, dan racikan tema yang tersimpan di akunmu.
