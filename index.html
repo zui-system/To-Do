@@ -405,6 +405,10 @@ body.wide.nosb{padding-left:32px}
 .faq p{padding:0 18px 16px;color:var(--ink-2);margin:0}
 .docx h3{font:700 16px var(--font-display);letter-spacing:0;text-transform:none;color:var(--ink);margin:16px 0 4px}.docx h3:first-child{margin-top:0}
 .docx p{color:var(--ink-2);max-width:72ch}
+.docx ul{color:var(--ink-2);max-width:72ch;margin:6px 0;padding-left:20px}.docx li{margin:4px 0}
+.docx .dver{font-size:13px;color:var(--ink-3);margin:0 0 12px}
+.docx .dnote{font-weight:700;color:var(--ink);border-left:3px solid var(--accent);padding:8px 12px;background:var(--surface-2);border-radius:8px;margin:12px 0}
+.docx .dtbl{overflow-x:auto;margin:8px 0}.docx table{border-collapse:collapse;font-size:13px;color:var(--ink-2)}.docx th,.docx td{border:1px solid var(--line);padding:6px 10px;text-align:left;vertical-align:top}.docx thead th,.docx tbody th{color:var(--ink);font-weight:700}
 /* subscription */
 .substat .sst{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:4px 0 6px}
 .substat strong{font:800 30px var(--font-display);letter-spacing:-.02em}
@@ -1367,7 +1371,7 @@ document.addEventListener('scroll',function(e){
 const T3={
  views:['Tampilan','Paparan','Views'],tags:['Kategori','Kategori','Categories'],search:['Cari tugas','Cari tugas','Search tasks'],settings:['Pengaturan','Tetapan','Settings'],close:['Tutup','Tutup','Close'],
  language:['Bahasa','Bahasa','Language'],theme:['Tema','Tema','Theme'],auto:['Otomatis','Automatik','Auto'],light:['Terang','Cerah','Light'],dark:['Gelap','Gelap','Dark'],
- services:['Layanan','Perkhidmatan','Services'],faq:['FAQ','Soalan Lazim','FAQ'],terms:['Syarat & Ketentuan','Terma & Syarat','Terms & Conditions'],privacy:['Kebijakan Privasi','Dasar Privasi','Privacy Policy'],
+ services:['Layanan','Perkhidmatan','Services'],faq:['FAQ','Soalan Lazim','FAQ'],terms:['Syarat & Ketentuan','Terma & Syarat','Terms & Conditions'],privacy:['Kebijakan Privasi','Dasar Privasi','Privacy Policy'],refund:['Kebijakan Pengembalian Dana','Dasar Bayaran Balik','Refund Policy'],contact:['Kontak & Alamat','Hubungi & Alamat','Contact & Address'],docVer:['Berlaku sejak 23 Oktober 2026','Berkuat kuasa mulai 23 Oktober 2026','Effective 23 October 2026'],
  manage:['Kelola langganan','Urus langganan','Manage subscription'],share:['Berbagi dengan teman','Kongsi dengan rakan','Share with friends'],feedback:['Umpan balik','Maklum balas','Feedback'],
  profile:['Profil','Profil','Profile'],name:['Nama','Nama','Name'],email:['Email','E-mel','Email'],more:['Lainnya','Lain-lain','More'],
  showDone:['Tampilkan tugas selesai','Papar tugas selesai','Show completed tasks'],clearDemo:['Mulai dari kosong','Mulakan kosong','Start empty'],clearDone:['Hapus semua tugas selesai','Padam semua tugas selesai','Delete all completed tasks'],
@@ -1522,7 +1526,7 @@ function openSettings(){openPanel('settings')}
 function renderPanel(){
   const p=S.panel;
   if(p==='settings')renderSettings();else if(p==='cats')renderCats();else if(p==='profile')renderProfile();else if(p==='goal')renderGoalPanel();
-  else if(p==='faq'||p==='terms'||p==='privacy')renderDoc(p);else if(p==='sub')renderSub();else if(p==='share')renderShare();
+  else if(p==='faq'||p==='terms'||p==='privacy'||p==='refund'||p==='contact')renderDoc(p);else if(p==='sub')renderSub();else if(p==='share')renderShare();
   else if(p==='feedback')renderFeedback();else if(p==='chat')renderChat();else if(p==='look')renderLook();
 }
 /* sub-pages remember where they were opened from so Back returns there */
@@ -1571,7 +1575,7 @@ function renderSettings(){
    +setRow('brush','#A855F7',L('lookT'),'open-look','','<span class="rv">'+esc(lookName())+'</span>'+chev)+'</div>'
    +'<div class="pcard">'+setRow('eye','#22C55E',L('showDone'),'set-done','',sw)+'</div>'
    +'<div class="pcard">'+setRow('download','#0EA5E9',L('exportCsv'),'export-csv','',feat('export')?'':'<span class="lk">'+svg(IC.lock,14)+' Pro</span>')+setRow('download','#6366F1',L('backup'),'backup','',feat('backup')?'':'<span class="lk">'+svg(IC.lock,14)+' '+plName('business')+'</span>')+setRow('upload','#6366F1',L('restore'),'restore','',feat('backup')?'':'<span class="lk">'+svg(IC.lock,14)+' '+plName('business')+'</span>')+'<input id="restore-f" type="file" accept="application/json,.json" hidden></div>'
-   +'<div class="pcard">'+setRow('help','#EC4899',L('faq'),'page','faq',chev)+setRow('doc','#3B82F6',L('terms'),'page','terms',chev)+setRow('shield','#F97316',L('privacy'),'page','privacy',chev)+'</div>'
+   +'<div class="pcard">'+setRow('help','#EC4899',L('faq'),'page','faq',chev)+setRow('doc','#3B82F6',L('terms'),'page','terms',chev)+setRow('shield','#F97316',L('privacy'),'page','privacy',chev)+setRow('card','#10B981',L('refund'),'page','refund',chev)+setRow('mail','#64748B',L('contact'),'page','contact',chev)+'</div>'
    +'<div class="pcard">'+setRow('card','#14B8A6',L('manage'),'page','sub',subR)+setRow('share','#22C55E',L('share'),'page','share',chev)+setRow('chat','#EAB308',L('feedback'),'page','feedback',unread+chev)+'</div>'
    +(S.demo?'<div class="pcard">'+setRow('tag','#94A3B8',L('clearDemo'),'set-clear-demo')+'</div>':'')
    +'<button class="pcard dng" type="button" data-act="set-clear-done"><span class="lbl">'+L('clearDone')+'</span></button>'
@@ -1681,7 +1685,7 @@ document.addEventListener('keydown',function(e){
 });
 
 /* ---------- documents: FAQ, terms, privacy (id / ms / en) ---------- */
-const CONTACT='info.zuisystem@gmail.com';
+const CONTACT='info.zuisystem@gmail.com',SUPPORT='support@zuisystem.com',INFO_MAIL='info@zuisystem.com',WA_NUM='+62 882-0007-49699';
 const DOCS={
  id:{
   faq:[
@@ -1695,26 +1699,52 @@ const DOCS={
    ['Bagaimana menghubungi Zui System?','Lewat Pengaturan → Umpan balik: kirim email ke '+CONTACT+' atau chat langsung dengan admin.']
   ],
   terms:[
-   ['1. Pengelola','Zui To-Do dikelola oleh Zui System, PT. Zaor Utama Indonesia ("kami"). Dengan membuat akun atau memakai aplikasi, kamu menyetujui syarat ini.'],
-   ['2. Akun','Kamu bertanggung jawab menjaga kerahasiaan akun dan sandi. Satu akun untuk satu pengguna. Berikan email yang benar agar akunmu bisa dipulihkan.'],
-   ['3. Penggunaan yang wajar','Jangan memakai Zui To-Do untuk menyimpan atau menyebarkan konten yang melanggar hukum, mengganggu layanan, atau mencoba mengakses data pengguna lain.'],
-   ['4. Masa percobaan','Akun baru mendapat percobaan 14 hari dengan semua fitur. Setelah percobaan dan masa tenggang 3 hari, akun tanpa langganan aktif menjadi hanya-baca.'],
-   ['5. Langganan & pembayaran','Harga paket Starter, Pro, dan Bisnis tercantum di halaman Kelola langganan dan dapat berubah sewaktu-waktu; perubahan tidak memengaruhi periode yang sudah dibayar. Pembayaran dilakukan manual lewat QRIS atau DuitNow dan aktif setelah diverifikasi admin. Masa aktif ditambahkan dari tanggal berakhir yang sedang berjalan.'],
-   ['6. Pengembalian dana','Pembayaran yang sudah diaktifkan tidak dapat dikembalikan, kecuali terjadi pembayaran ganda atau kesalahan dari pihak kami. Hubungi kami dalam 7 hari bila hal itu terjadi.'],
-   ['7. Ketersediaan layanan','Kami berusaha menjaga layanan tetap berjalan, tetapi tidak menjamin bebas gangguan. Fitur dapat ditambah, diubah, atau dihentikan untuk perbaikan.'],
-   ['8. Batas tanggung jawab','Zui To-Do adalah alat bantu pencatatan. Kami tidak bertanggung jawab atas kerugian tidak langsung akibat tugas yang terlewat atau data yang dimasukkan pengguna.'],
-   ['9. Penghentian','Kami dapat menangguhkan akun yang melanggar syarat ini. Kamu dapat berhenti memakai layanan kapan saja dan meminta penghapusan akun lewat '+CONTACT+'.'],
-   ['10. Hukum yang berlaku','Syarat ini tunduk pada hukum Republik Indonesia. Berlaku sejak 18 Oktober 2026 dan dapat diperbarui; versi terbaru selalu ada di aplikasi.']
+   ['','Syarat ini mengatur penggunaan aplikasi Zui To-Do (“layanan”) yang dikelola oleh Zui System, PT. Zaor Utama Indonesia (“kami”). Dengan membuat akun atau memakai layanan, kamu menyetujui syarat ini.'],
+   ['1. Layanan kami',['Zui To-Do adalah aplikasi web untuk mencatat dan mengatur tugas pribadi, yang tersimpan di akunmu dan tersinkron di semua perangkat tempat kamu masuk:','- Tugas: judul, catatan, prioritas, kategori, tenggat, dan tugas berjangka (harian, mingguan, bulanan, tahunan). Tugas berjangka yang belum selesai otomatis ikut ke periode berikutnya sebagai tugas Lanjutan.','- Tampilan: Hari ini, Papan, Kalender, dan Ringkasan.','- Target: target tugas harian, mingguan, bulanan, dan tahunan.','- Profil dan tema: profil pribadi, tema siap pakai, dan racik tema sendiri (paket tertentu).','- Data: ekspor tugas ke CSV, serta cadangkan dan pulihkan data (JSON) sesuai paket.','- Bantuan: chat dengan admin Zui dan permintaan langganan.','Kami bisa menambah, mengubah, atau menghentikan fitur dari waktu ke waktu.']],
+   ['2. Akun dan keamanan',['- Kamu harus berusia minimal 18 tahun, atau mendapat persetujuan orang tua atau wali bila di bawah 18 tahun.','- Kamu wajib memberi nama dan email yang benar agar akunmu bisa dipulihkan.','- Satu akun untuk satu pengguna. Jangan berbagi akun dengan orang lain.','- Jaga kerahasiaan kata sandi. Semua kegiatan di akunmu menjadi tanggung jawabmu.','- Segera hubungi kami bila kamu menduga akunmu dipakai orang lain.']],
+   ['3. Paket dan fitur',['Setiap akun memakai salah satu paket berikut:','- Starter: semua tampilan (Hari ini, Papan, Kalender, Ringkasan), target harian sampai tahunan, sinkron di semua perangkat, 8 tema siap pakai, dan hingga 5 kategori.','- Pro: semua fitur Starter, kategori hingga 50, racik tema sendiri (warna, huruf, ukuran teks, sudut), dan ekspor tugas ke CSV.','- Bisnis: semua fitur Pro, cadangkan dan pulihkan data (JSON), dan prioritas balasan chat admin.','Bila kamu pindah ke paket yang lebih rendah, fitur yang tidak termasuk di paket itu terkunci, tetapi data yang sudah ada tetap tersimpan.']],
+   ['4. Masa percobaan dan langganan',['- Akun baru mendapat masa percobaan gratis selama 14 hari dengan semua fitur paket Bisnis.','- Setelah masa percobaan, kamu bisa memilih paket Starter, Pro, atau Bisnis dengan durasi 1 bulan, 6 bulan, atau 1 tahun. Harga berlaku per akun dan ditampilkan di Pengaturan → Kelola langganan dalam Rupiah atau Ringgit.','- Harga bisa berubah. Perubahan harga tidak memengaruhi masa langganan yang sudah dibayar.','- Pembayaran dilakukan lewat QRIS (Rupiah) atau DuitNow (Ringgit) ke kode yang tertera di Kelola langganan. Setelah membayar, tulis nomor referensi dari bukti bayar lalu kirim lewat menu tersebut. Kamu juga bisa mengirim foto bukti bayar lewat chat admin.','- Kami memeriksa pembayaran lalu mengaktifkan langganan secara manual, biasanya paling lambat 1 × 24 jam. Waktu aktivasi bergantung pada jam layanan dan tidak dijamin seketika. Masa aktif ditambahkan dari tanggal berakhir yang sekarang, atau dari hari aktivasi bila masa aktif sudah lewat.','- Langganan tidak diperpanjang otomatis.','- Jika masa percobaan atau langganan habis, ada masa tenggang 3 hari. Setelah itu tugas dan data hanya bisa dibaca dan tidak bisa diubah sampai langganan aktif. Data tetap tersimpan.','- Langganan yang sudah aktif tidak dapat dibatalkan dan pembayarannya tidak dapat dikembalikan, kecuali karena kesalahan pembayaran sesuai Kebijakan Pengembalian Dana.']],
+   ['5. Data milikmu','Data yang kamu masukkan, seperti tugas, kategori, target, dan profil, tetap milikmu. Kami hanya memakainya untuk menjalankan layanan sesuai Kebijakan Privasi. Kamu bertanggung jawab atas isi yang kamu catat dan memastikan kamu berhak menyimpannya, termasuk bila tugasmu memuat data orang lain. Kami menyarankan kamu mencadangkan data secara berkala.'],
+   ['6. Penggunaan yang dilarang',['- Memakai layanan untuk menyimpan atau menyebarkan konten yang melanggar hukum, atau memasukkan data pihak lain tanpa hak.','- Mencoba membuka data pengguna lain, membobol keamanan, atau mengganggu kerja layanan.','- Mengirim nomor referensi atau bukti bayar yang dipalsukan, diubah, atau dipakai ulang.','- Menyalin, menjual kembali, atau menyewakan akses layanan tanpa izin tertulis dari kami.']],
+   ['7. Ketersediaan layanan','Kami berusaha agar layanan selalu bisa dipakai, tetapi tidak menjamin layanan bebas gangguan. Pemeliharaan, pembaruan, gangguan jaringan, atau gangguan penyedia infrastruktur bisa membuat layanan atau sinkronisasi sementara tidak tersedia.'],
+   ['8. Batas tanggung jawab','Zui To-Do adalah alat bantu pencatatan. Pengingat, target, dan ringkasan di layanan dihitung dari data yang kamu masukkan. Sejauh diizinkan hukum, kami tidak bertanggung jawab atas kerugian tidak langsung, kehilangan keuntungan, tugas atau tenggat yang terlewat, atau kerugian akibat data yang salah. Total tanggung jawab kami atas satu perselisihan tidak melebihi jumlah yang kamu bayarkan untuk langganan selama 3 bulan terakhir.'],
+   ['9. Penghentian','Kamu bisa berhenti memakai layanan kapan saja dengan tidak memperpanjang langganan, menghapus tugas dan data profil di aplikasi, atau meminta penghapusan akun dan seluruh datanya lewat '+SUPPORT+'. Kami bisa menangguhkan atau menutup akun yang melanggar syarat ini, dengan pemberitahuan bila memungkinkan.'],
+   ['10. Perubahan syarat','Kami bisa memperbarui syarat ini. Perubahan penting akan kami umumkan di layanan atau lewat email. Tanggal berlaku di atas menunjukkan versi terbaru.'],
+   ['11. Hukum yang berlaku','Syarat ini tunduk pada hukum Republik Indonesia. Perselisihan diselesaikan lebih dulu secara musyawarah, dan bila tidak tercapai, melalui Pengadilan Negeri Pamekasan.'],
+   ['12. Hubungi kami','Lihat Pengaturan → Kontak & Alamat.']
   ],
   privacy:[
-   ['Data yang kami kumpulkan','Email dan nama akun, data profil yang kamu isi (opsional), tugas, kategori, target, pengaturan tampilan, riwayat permintaan langganan, serta isi chat dengan admin.'],
-   ['Cara kami memakai data','Untuk menjalankan aplikasi, menyinkronkan data di perangkatmu, memproses langganan, dan menjawab pertanyaanmu. Kami tidak menjual data pribadimu dan tidak memakai isi tugasmu untuk iklan.'],
-   ['Penyimpanan & keamanan','Data disimpan di layanan Google Firebase dengan koneksi terenkripsi (HTTPS). Hanya kamu yang bisa membaca tugasmu. Admin Zui hanya melihat data akun, status langganan, permintaan bayar, dan chat yang kamu kirim.'],
-   ['Pembayaran','Kami tidak menyimpan data kartu atau rekening. Kami hanya mencatat paket, jumlah, mata uang, nomor referensi, dan foto bukti yang kamu kirim sendiri lewat chat.'],
-   ['Penyimpanan di perangkat','Aplikasi memakai penyimpanan peramban untuk bahasa, tema, dan salinan offline agar tetap cepat dan bisa dipakai saat sinyal lemah.'],
-   ['Hak kamu','Kamu dapat melihat dan mengubah datamu di aplikasi, mengunduh cadangan, serta meminta penghapusan akun dan seluruh data lewat '+CONTACT+'.'],
-   ['Perubahan kebijakan','Kebijakan ini dapat diperbarui. Perubahan penting akan diberitahukan di aplikasi. Berlaku sejak 18 Oktober 2026.'],
-   ['Kontak','Zui System, PT. Zaor Utama Indonesia · '+CONTACT]
+   ['','Kebijakan ini menjelaskan data apa yang dikumpulkan Zui To-Do, untuk apa, dan bagaimana kamu bisa mengaturnya. Kami mengikuti Undang-Undang Nomor 27 Tahun 2022 tentang Pelindungan Data Pribadi.'],
+   ['1. Data yang kami kumpulkan',['- Data akun: nama, email, dan kata sandi. Kata sandi dikelola oleh Firebase Authentication dan tidak bisa kami lihat. Bila kamu masuk dengan Google, kami menerima nama dan email akun Google-mu.','- Profil (opsional): nama lengkap, nama panggilan, username, tanggal lahir, jenis kelamin, telepon, kota atau negara, pekerjaan, instansi atau sekolah, bio, foto profil, target tugas per hari, dan jam pengingat. Semua bidang ini boleh dikosongkan.','- Data yang kamu masukkan: tugas beserta catatan, prioritas, tenggat, dan statusnya, kategori, serta target.','- Pengaturan: bahasa, tema, dan racikan tema yang tersimpan di akunmu.','- Langganan dan bantuan: paket, durasi, jumlah, mata uang, dan nomor referensi pembayaran yang kamu kirim, serta isi chat dengan admin, termasuk foto bukti bayar yang kamu lampirkan.','- Penyimpanan di perangkat: bahasa, tema, dan salinan data offline yang disimpan di browser perangkatmu agar aplikasi cepat dan tetap bisa dipakai saat sinyal lemah.']],
+   ['2. Untuk apa data dipakai',['- Menjalankan fitur layanan, seperti menyimpan tugas, menyinkronkan data antar perangkat, dan menampilkan target serta ringkasan.','- Memverifikasi akun dan membantu atur ulang kata sandi.','- Mengelola masa percobaan dan langganan, termasuk memeriksa pembayaran.','- Menjawab pertanyaan, umpan balik, dan permintaan bantuan darimu.','- Menjaga keamanan layanan.','Kami tidak menjual data pribadi dan tidak memakai isi tugasmu untuk iklan.']],
+   ['3. Tempat penyimpanan dan keamanan','Data disimpan di layanan Google Firebase (Authentication dan Cloud Firestore), sehingga server penyimpanannya bisa berada di luar Indonesia. Tugas dan profilmu hanya bisa dibuka oleh akunmu sendiri. Koneksi ke layanan dienkripsi dengan HTTPS.'],
+   ['4. Berbagi data',['Kami hanya berbagi data dengan:','- Google, sebagai penyedia infrastruktur penyimpanan, login (termasuk masuk dengan Google), dan huruf (Google Fonts).','- GitHub, sebagai penyedia hosting halaman aplikasi (GitHub Pages).','- Pihak berwenang, bila diwajibkan oleh hukum.','Tombol Berbagi dengan teman hanya membuka aplikasi pilihanmu (misalnya WhatsApp, Telegram, atau email) dengan tautan Zui To-Do. Tugas dan profilmu tidak ikut dibagikan.','Admin Zui bisa melihat nama dan email akun, status langganan, permintaan pembayaran, dan chat yang kamu kirim. Tugas, kategori, target, dan profilmu tidak ditampilkan di panel admin. Pengelola teknis bisa membuka basis data lewat konsol Firebase hanya bila diperlukan untuk pemeliharaan atau saat kamu meminta bantuan.']],
+   ['5. Hakmu','Kamu berhak meminta salinan data pribadimu, memperbaiki data yang salah, menghapus data, dan menarik persetujuan. Sebagian besar bisa kamu lakukan sendiri di aplikasi, seperti mengubah atau menghapus tugas dan profil, mengekspor tugas, dan mengunduh cadangan sesuai paket. Untuk permintaan lain, termasuk penghapusan akun, kirim email ke '+SUPPORT+'. Kami akan menanggapi paling lambat 14 hari kerja sejak permintaan diterima.'],
+   ['6. Lama penyimpanan dan penghapusan','Data disimpan selama akunmu aktif. Tugas dan data profil yang kamu hapus di aplikasi langsung terhapus dari akunmu. Bila kamu meminta penghapusan akun, akun dan seluruh tugas, kategori, target, profil, dan pengaturanmu dihapus permanen dan tidak bisa dipulihkan. Catatan pembayaran langganan dan chat bantuan, termasuk bukti bayar, tetap kami simpan sesuai kewajiban pembukuan dan hukum, lalu dihapus setelah tidak diperlukan lagi. Salinan cadangan di penyedia infrastruktur, bila ada, terhapus permanen setelah waktu terbatas. Data yang tersimpan di browser perangkatmu bisa kamu hapus sendiri lewat pengaturan browser.'],
+   ['7. Data orang lain dalam tugasmu','Bila kamu mencatat data orang lain di tugasmu, misalnya nama atau nomor telepon, kamu yang menentukan data tersebut dan bertanggung jawab atasnya. Kami memproses data itu atas namamu dan hanya untuk menjalankan layanan.'],
+   ['8. Pengguna di bawah umur','Pengguna di bawah 18 tahun hanya boleh memakai layanan dengan persetujuan orang tua atau wali. Bila kamu orang tua atau wali dan mengetahui anakmu memberi data tanpa persetujuanmu, hubungi kami agar datanya bisa dihapus.'],
+   ['9. Perubahan kebijakan','Bila kebijakan ini berubah, kami akan memperbarui tanggal berlaku dan memberi tahu perubahan penting di layanan atau lewat email.'],
+   ['10. Hubungi kami','Pertanyaan atau permintaan soal data pribadi bisa dikirim ke '+SUPPORT+'. Alamat lengkap ada di Pengaturan → Kontak & Alamat.']
+  ],
+  refund:[
+   ['','Kebijakan ini menjelaskan aturan pengembalian dana untuk pembayaran langganan Zui To-Do.'],
+   ['','! Langganan yang sudah aktif bersifat final. Langganan tidak dapat dibatalkan dan pembayarannya tidak dapat dikembalikan, kecuali karena kesalahan pembayaran pada bagian 3.'],
+   ['1. Coba dulu sebelum membayar','Setiap akun baru mendapat masa percobaan gratis 14 hari dengan semua fitur paket Bisnis, tanpa pembayaran. Kami menyarankan kamu memakai masa ini untuk memastikan layanan dan paket yang dipilih sesuai kebutuhan sebelum berlangganan.'],
+   ['2. Paket dan harga',['Satu langganan berlaku untuk satu akun.','{prices}','Harga yang berlaku adalah harga yang tertera di Kelola langganan saat kamu mengajukan langganan, termasuk harga promo bila ada. Langganan tidak diperpanjang otomatis, jadi tidak ada tagihan berulang tanpa persetujuanmu.']],
+   ['3. Pengecualian: kesalahan pembayaran',['Pengembalian dana hanya berlaku untuk kesalahan pembayaran berikut, bila diajukan paling lambat 7 hari setelah pembayaran:','- Pembayaran ganda: kamu membayar dua kali untuk permintaan yang sama. Kelebihannya dikembalikan penuh.','- Kelebihan bayar: jumlah yang dibayar lebih besar dari harga paket. Selisihnya dikembalikan.','- Langganan tidak diaktifkan: langganan belum aktif dalam 3 × 24 jam setelah kamu mengirim nomor referensi yang benar, dan kamu memilih membatalkan. Pembayaran dikembalikan penuh.']],
+   ['4. Pembayaran yang tidak bisa dikembalikan',['- Langganan yang sudah aktif, termasuk perpanjangan, dengan alasan apa pun, misalnya berubah pikiran atau tidak lagi memakai layanan.','- Sisa masa langganan bila kamu berhenti memakai layanan di tengah periode.','- Penggantian ke paket yang lebih rendah atau durasi yang lebih pendek selama masa langganan.','- Akun yang ditutup karena melanggar Syarat Layanan.','- Pembayaran yang dikirim ke tujuan selain QRIS atau DuitNow yang tertera di Kelola langganan.','- Pengajuan dengan nomor referensi atau bukti bayar yang dipalsukan, diubah, atau dipakai ulang.']],
+   ['5. Cara mengajukan',['Kirim email ke '+SUPPORT+' dengan judul “Pengembalian Dana”, atau tulis lewat chat admin di Zui To-Do, dan sertakan:','- email akun,','- tanggal, jumlah, dan nomor referensi pembayaran, serta bukti bayarnya,','- alasan pengajuan,','- nama bank atau e-wallet, nomor rekening, dan nama pemilik rekening untuk menerima dana.']],
+   ['6. Proses dan waktu',['- Kami membalas pengajuan paling lambat 2 hari kerja.','- Bila disetujui, dana dikirim dalam 7 sampai 14 hari kerja ke rekening bank atau e-wallet yang kamu berikan.','- Pengembalian karena pembayaran ganda atau kelebihan bayar tidak mengubah langganan yang sudah aktif. Untuk langganan yang belum diaktifkan, permintaannya dibatalkan dan data di akunmu tetap aman.']]
+  ],
+  contact:[
+   ['','Zui To-Do dikelola oleh Zui System, PT. Zaor Utama Indonesia.'],
+   ['Perusahaan','PT. Zaor Utama Indonesia'],
+   ['Alamat','Dsn. Togur Dajah, Sotabar, Pasean, Pamekasan, Jawa Timur 69356, Indonesia'],
+   ['Bantuan & pengembalian dana',SUPPORT],
+   ['Informasi umum & kerja sama',INFO_MAIL],
+   ['WhatsApp',WA_NUM],
+   ['Jam layanan','Setiap hari, 08.00–22.00 WIB'],
+   ['Situs aplikasi','todo.zuisystem.com']
   ]
  },
  ms:{
@@ -1729,26 +1759,52 @@ const DOCS={
    ['Bagaimana menghubungi Zui System?','Melalui Tetapan → Maklum balas: e-mel ke '+CONTACT+' atau chat terus dengan admin.']
   ],
   terms:[
-   ['1. Pengendali','Zui To-Do diuruskan oleh Zui System, PT. Zaor Utama Indonesia ("kami"). Dengan membuat akaun atau menggunakan aplikasi, anda bersetuju dengan terma ini.'],
-   ['2. Akaun','Anda bertanggungjawab menjaga kerahsiaan akaun dan kata laluan. Satu akaun untuk seorang pengguna.'],
-   ['3. Penggunaan berpatutan','Jangan gunakan Zui To-Do untuk kandungan yang menyalahi undang-undang, mengganggu perkhidmatan atau cuba mengakses data pengguna lain.'],
-   ['4. Tempoh percubaan','Akaun baharu mendapat percubaan 14 hari dengan semua ciri. Selepas itu dan tempoh tangguh 3 hari, akaun tanpa langganan aktif menjadi baca sahaja.'],
-   ['5. Langganan & bayaran','Harga pelan Starter, Pro dan Bisnis tertera di halaman Urus langganan dan boleh berubah; perubahan tidak menjejaskan tempoh yang telah dibayar. Bayaran dibuat secara manual dan aktif selepas disahkan admin.'],
-   ['6. Bayaran balik','Bayaran yang telah diaktifkan tidak boleh dikembalikan, kecuali bayaran berganda atau kesilapan pihak kami. Hubungi kami dalam 7 hari.'],
-   ['7. Ketersediaan','Kami berusaha memastikan perkhidmatan berjalan tetapi tidak menjamin bebas gangguan. Ciri boleh ditambah, diubah atau dihentikan.'],
-   ['8. Had tanggungjawab','Zui To-Do ialah alat bantu. Kami tidak bertanggungjawab atas kerugian tidak langsung akibat tugas yang terlepas atau data yang dimasukkan pengguna.'],
-   ['9. Penamatan','Kami boleh menggantung akaun yang melanggar terma. Anda boleh berhenti bila-bila masa dan meminta akaun dipadam melalui '+CONTACT+'.'],
-   ['10. Undang-undang','Terma ini tertakluk kepada undang-undang Republik Indonesia. Berkuat kuasa mulai 18 Oktober 2026.']
+   ['','Terma ini mengawal penggunaan aplikasi Zui To-Do (“perkhidmatan”) yang diuruskan oleh Zui System, PT. Zaor Utama Indonesia (“kami”). Dengan membuat akaun atau menggunakan perkhidmatan, anda bersetuju dengan terma ini.'],
+   ['1. Perkhidmatan kami',['Zui To-Do ialah aplikasi web untuk mencatat dan mengatur tugas peribadi, yang disimpan dalam akaun anda dan disegerakkan di semua peranti tempat anda log masuk:','- Tugas: tajuk, catatan, keutamaan, kategori, tarikh akhir dan tugas bertempoh (harian, mingguan, bulanan, tahunan). Tugas bertempoh yang belum selesai diteruskan ke tempoh seterusnya sebagai tugas Sambungan.','- Paparan: Hari ini, Papan, Kalendar dan Ringkasan.','- Sasaran: sasaran tugas harian, mingguan, bulanan dan tahunan.','- Profil dan tema: profil peribadi, tema sedia ada dan reka tema sendiri (pelan tertentu).','- Data: eksport tugas ke CSV, serta sandar dan pulihkan data (JSON) mengikut pelan.','- Bantuan: chat dengan admin Zui dan permohonan langganan.','Kami boleh menambah, mengubah atau menghentikan ciri dari semasa ke semasa.']],
+   ['2. Akaun dan keselamatan',['- Anda mesti berumur sekurang-kurangnya 18 tahun, atau mendapat persetujuan ibu bapa atau penjaga jika di bawah 18 tahun.','- Anda wajib memberikan nama dan e-mel yang betul supaya akaun boleh dipulihkan.','- Satu akaun untuk seorang pengguna. Jangan berkongsi akaun dengan orang lain.','- Jaga kerahsiaan kata laluan. Semua aktiviti dalam akaun anda menjadi tanggungjawab anda.','- Segera hubungi kami jika anda mengesyaki akaun anda digunakan orang lain.']],
+   ['3. Pelan dan ciri',['Setiap akaun menggunakan salah satu pelan berikut:','- Starter: semua paparan (Hari ini, Papan, Kalendar, Ringkasan), sasaran harian hingga tahunan, segerak di semua peranti, 8 tema sedia ada dan sehingga 5 kategori.','- Pro: semua ciri Starter, kategori sehingga 50, reka tema sendiri (warna, fon, saiz teks, bucu) dan eksport tugas ke CSV.','- Bisnes: semua ciri Pro, sandar dan pulihkan data (JSON) dan keutamaan balasan chat admin.','Jika anda bertukar ke pelan yang lebih rendah, ciri yang tidak termasuk dalam pelan itu dikunci, tetapi data sedia ada kekal disimpan.']],
+   ['4. Tempoh percubaan dan langganan',['- Akaun baharu mendapat tempoh percubaan percuma selama 14 hari dengan semua ciri pelan Bisnes.','- Selepas tempoh percubaan, anda boleh memilih pelan Starter, Pro atau Bisnes dengan tempoh 1 bulan, 6 bulan atau 1 tahun. Harga dikenakan bagi setiap akaun dan dipaparkan di Tetapan → Urus langganan dalam Rupiah atau Ringgit.','- Harga boleh berubah. Perubahan harga tidak menjejaskan tempoh langganan yang telah dibayar.','- Bayaran dibuat melalui QRIS (Rupiah) atau DuitNow (Ringgit) ke kod yang tertera di Urus langganan. Selepas membayar, tulis nombor rujukan daripada resit dan hantar melalui menu tersebut. Anda juga boleh menghantar foto resit melalui chat admin.','- Kami menyemak bayaran dan mengaktifkan langganan secara manual, biasanya dalam masa 1 × 24 jam. Masa pengaktifan bergantung pada waktu perkhidmatan dan tidak dijamin serta-merta. Tempoh aktif ditambah dari tarikh tamat semasa, atau dari hari pengaktifan jika tempoh aktif telah tamat.','- Langganan tidak diperbaharui secara automatik.','- Jika tempoh percubaan atau langganan tamat, terdapat tempoh tangguh 3 hari. Selepas itu tugas dan data hanya boleh dibaca dan tidak boleh diubah sehingga langganan aktif. Data kekal disimpan.','- Langganan yang telah aktif tidak boleh dibatalkan dan bayarannya tidak boleh dikembalikan, kecuali kerana kesilapan bayaran mengikut Dasar Bayaran Balik.']],
+   ['5. Data milik anda','Data yang anda masukkan, seperti tugas, kategori, sasaran dan profil, kekal milik anda. Kami hanya menggunakannya untuk menjalankan perkhidmatan mengikut Dasar Privasi. Anda bertanggungjawab atas kandungan yang anda catat dan memastikan anda berhak menyimpannya, termasuk jika tugas anda mengandungi data orang lain. Kami mencadangkan anda menyandarkan data secara berkala.'],
+   ['6. Penggunaan yang dilarang',['- Menggunakan perkhidmatan untuk menyimpan atau menyebarkan kandungan yang menyalahi undang-undang, atau memasukkan data pihak lain tanpa hak.','- Cuba membuka data pengguna lain, menceroboh keselamatan atau mengganggu perkhidmatan.','- Menghantar nombor rujukan atau resit yang dipalsukan, diubah atau digunakan semula.','- Menyalin, menjual semula atau menyewakan akses perkhidmatan tanpa kebenaran bertulis daripada kami.']],
+   ['7. Ketersediaan perkhidmatan','Kami berusaha memastikan perkhidmatan sentiasa boleh digunakan, tetapi tidak menjamin bebas gangguan. Penyelenggaraan, kemas kini, gangguan rangkaian atau gangguan penyedia infrastruktur boleh menyebabkan perkhidmatan atau penyegerakan tidak tersedia buat sementara.'],
+   ['8. Had tanggungjawab','Zui To-Do ialah alat bantu pencatatan. Peringatan, sasaran dan ringkasan dikira daripada data yang anda masukkan. Setakat yang dibenarkan undang-undang, kami tidak bertanggungjawab atas kerugian tidak langsung, kehilangan keuntungan, tugas atau tarikh akhir yang terlepas, atau kerugian akibat data yang salah. Jumlah tanggungjawab kami bagi satu pertikaian tidak melebihi jumlah yang anda bayar untuk langganan dalam 3 bulan terakhir.'],
+   ['9. Penamatan','Anda boleh berhenti menggunakan perkhidmatan bila-bila masa dengan tidak memperbaharui langganan, memadam tugas dan data profil dalam aplikasi, atau meminta akaun dan semua datanya dipadam melalui '+SUPPORT+'. Kami boleh menggantung atau menutup akaun yang melanggar terma ini, dengan notis jika boleh.'],
+   ['10. Perubahan terma','Kami boleh mengemas kini terma ini. Perubahan penting akan diumumkan dalam perkhidmatan atau melalui e-mel. Tarikh berkuat kuasa di atas menunjukkan versi terkini.'],
+   ['11. Undang-undang yang terpakai','Terma ini tertakluk kepada undang-undang Republik Indonesia. Pertikaian diselesaikan terlebih dahulu secara musyawarah, dan jika tidak tercapai, melalui Pengadilan Negeri Pamekasan.'],
+   ['12. Hubungi kami','Lihat Tetapan → Hubungi & Alamat.']
   ],
   privacy:[
-   ['Data yang dikumpul','E-mel dan nama akaun, profil pilihan, tugas, kategori, sasaran, tetapan paparan, sejarah permohonan langganan dan kandungan chat dengan admin.'],
-   ['Penggunaan data','Untuk menjalankan aplikasi, menyegerakkan data, memproses langganan dan menjawab soalan anda. Kami tidak menjual data peribadi anda.'],
-   ['Penyimpanan & keselamatan','Data disimpan dalam Google Firebase dengan sambungan disulitkan (HTTPS). Hanya anda boleh membaca tugas anda. Admin Zui hanya melihat data akaun, status langganan, permohonan bayaran dan chat.'],
-   ['Bayaran','Kami tidak menyimpan data kad atau akaun bank, hanya pelan, jumlah, mata wang, nombor rujukan dan foto bukti yang anda hantar.'],
-   ['Storan peranti','Aplikasi menggunakan storan pelayar untuk bahasa, tema dan salinan luar talian.'],
-   ['Hak anda','Anda boleh melihat dan mengubah data, memuat turun sandaran dan meminta akaun serta data dipadam melalui '+CONTACT+'.'],
-   ['Perubahan','Dasar ini boleh dikemas kini. Berkuat kuasa mulai 18 Oktober 2026.'],
-   ['Hubungi','Zui System, PT. Zaor Utama Indonesia · '+CONTACT]
+   ['','Dasar ini menerangkan data yang dikumpul oleh Zui To-Do, tujuannya dan cara anda mengawalnya. Kami mematuhi Undang-Undang Nomor 27 Tahun 2022 tentang Pelindungan Data Pribadi (Indonesia).'],
+   ['1. Data yang kami kumpul',['- Data akaun: nama, e-mel dan kata laluan. Kata laluan diurus oleh Firebase Authentication dan tidak boleh kami lihat. Jika anda log masuk dengan Google, kami menerima nama dan e-mel akaun Google anda.','- Profil (pilihan): nama penuh, nama panggilan, nama pengguna, tarikh lahir, jantina, telefon, bandar atau negara, pekerjaan, organisasi atau sekolah, bio, foto profil, sasaran tugas sehari dan waktu peringatan. Semua medan ini boleh dikosongkan.','- Data yang anda masukkan: tugas berserta catatan, keutamaan, tarikh akhir dan statusnya, kategori serta sasaran.','- Tetapan: bahasa, tema dan reka tema yang disimpan dalam akaun anda.','- Langganan dan bantuan: pelan, tempoh, jumlah, mata wang dan nombor rujukan bayaran yang anda hantar, serta kandungan chat dengan admin, termasuk foto resit yang anda lampirkan.','- Storan peranti: bahasa, tema dan salinan data luar talian yang disimpan dalam pelayar peranti anda supaya aplikasi pantas dan boleh digunakan ketika isyarat lemah.']],
+   ['2. Tujuan penggunaan data',['- Menjalankan ciri perkhidmatan, seperti menyimpan tugas, menyegerakkan data antara peranti dan memaparkan sasaran serta ringkasan.','- Mengesahkan akaun dan membantu menetapkan semula kata laluan.','- Mengurus tempoh percubaan dan langganan, termasuk menyemak bayaran.','- Menjawab soalan, maklum balas dan permintaan bantuan anda.','- Menjaga keselamatan perkhidmatan.','Kami tidak menjual data peribadi dan tidak menggunakan kandungan tugas anda untuk iklan.']],
+   ['3. Tempat penyimpanan dan keselamatan','Data disimpan dalam Google Firebase (Authentication dan Cloud Firestore), jadi pelayan penyimpanannya mungkin berada di luar Indonesia. Tugas dan profil anda hanya boleh dibuka oleh akaun anda sendiri. Sambungan ke perkhidmatan disulitkan dengan HTTPS.'],
+   ['4. Perkongsian data',['Kami hanya berkongsi data dengan:','- Google, sebagai penyedia infrastruktur penyimpanan, log masuk (termasuk log masuk dengan Google) dan fon (Google Fonts).','- GitHub, sebagai penyedia hosting halaman aplikasi (GitHub Pages).','- Pihak berkuasa, jika diwajibkan oleh undang-undang.','Butang Kongsi dengan rakan hanya membuka aplikasi pilihan anda (contohnya WhatsApp, Telegram atau e-mel) dengan pautan Zui To-Do. Tugas dan profil anda tidak dikongsi.','Admin Zui boleh melihat nama dan e-mel akaun, status langganan, permohonan bayaran dan chat yang anda hantar. Tugas, kategori, sasaran dan profil anda tidak dipaparkan di panel admin. Pengurus teknikal boleh membuka pangkalan data melalui konsol Firebase hanya jika perlu untuk penyelenggaraan atau apabila anda meminta bantuan.']],
+   ['5. Hak anda','Anda berhak meminta salinan data peribadi anda, membetulkan data yang salah, memadam data dan menarik balik persetujuan. Kebanyakannya boleh anda lakukan sendiri dalam aplikasi, seperti mengubah atau memadam tugas dan profil, mengeksport tugas dan memuat turun sandaran mengikut pelan. Untuk permintaan lain, termasuk pemadaman akaun, hantar e-mel ke '+SUPPORT+'. Kami akan menjawab dalam masa 14 hari bekerja selepas permintaan diterima.'],
+   ['6. Tempoh penyimpanan dan pemadaman','Data disimpan selagi akaun anda aktif. Tugas dan data profil yang anda padam dalam aplikasi terus dipadam daripada akaun anda. Jika anda meminta pemadaman akaun, akaun dan semua tugas, kategori, sasaran, profil dan tetapan anda dipadam secara kekal dan tidak boleh dipulihkan. Rekod bayaran langganan dan chat bantuan, termasuk resit, disimpan mengikut kewajipan perakaunan dan undang-undang, kemudian dipadam apabila tidak diperlukan lagi. Salinan sandaran di penyedia infrastruktur, jika ada, dipadam secara kekal selepas tempoh terhad. Data dalam pelayar peranti anda boleh dipadam sendiri melalui tetapan pelayar.'],
+   ['7. Data orang lain dalam tugas anda','Jika anda mencatat data orang lain dalam tugas anda, contohnya nama atau nombor telefon, anda yang menentukan data tersebut dan bertanggungjawab ke atasnya. Kami memproses data itu bagi pihak anda dan hanya untuk menjalankan perkhidmatan.'],
+   ['8. Pengguna bawah umur','Pengguna di bawah 18 tahun hanya boleh menggunakan perkhidmatan dengan persetujuan ibu bapa atau penjaga. Jika anda ibu bapa atau penjaga dan mendapati anak anda memberikan data tanpa persetujuan anda, hubungi kami supaya data itu dipadam.'],
+   ['9. Perubahan dasar','Jika dasar ini berubah, kami akan mengemas kini tarikh berkuat kuasa dan memaklumkan perubahan penting dalam perkhidmatan atau melalui e-mel.'],
+   ['10. Hubungi kami','Soalan atau permintaan berkaitan data peribadi boleh dihantar ke '+SUPPORT+'. Alamat penuh ada di Tetapan → Hubungi & Alamat.']
+  ],
+  refund:[
+   ['','Dasar ini menerangkan peraturan bayaran balik untuk bayaran langganan Zui To-Do.'],
+   ['','! Langganan yang telah aktif adalah muktamad. Langganan tidak boleh dibatalkan dan bayarannya tidak boleh dikembalikan, kecuali kerana kesilapan bayaran di bahagian 3.'],
+   ['1. Cuba dahulu sebelum membayar','Setiap akaun baharu mendapat tempoh percubaan percuma 14 hari dengan semua ciri pelan Bisnes, tanpa bayaran. Kami mencadangkan anda menggunakan tempoh ini untuk memastikan perkhidmatan dan pelan yang dipilih sesuai sebelum melanggan.'],
+   ['2. Pelan dan harga',['Satu langganan untuk satu akaun.','{prices}','Harga yang terpakai ialah harga yang tertera di Urus langganan semasa anda memohon langganan, termasuk harga promosi jika ada. Langganan tidak diperbaharui secara automatik, jadi tiada caj berulang tanpa persetujuan anda.']],
+   ['3. Pengecualian: kesilapan bayaran',['Bayaran balik hanya terpakai untuk kesilapan bayaran berikut, jika dimohon dalam masa 7 hari selepas bayaran:','- Bayaran berganda: anda membayar dua kali untuk permohonan yang sama. Lebihannya dikembalikan sepenuhnya.','- Lebihan bayaran: jumlah yang dibayar melebihi harga pelan. Bezanya dikembalikan.','- Langganan tidak diaktifkan: langganan belum aktif dalam 3 × 24 jam selepas anda menghantar nombor rujukan yang betul, dan anda memilih untuk membatalkan. Bayaran dikembalikan sepenuhnya.']],
+   ['4. Bayaran yang tidak boleh dikembalikan',['- Langganan yang telah aktif, termasuk pembaharuan, atas apa jua sebab, contohnya berubah fikiran atau tidak lagi menggunakan perkhidmatan.','- Baki tempoh langganan jika anda berhenti menggunakan perkhidmatan di pertengahan tempoh.','- Pertukaran ke pelan yang lebih rendah atau tempoh yang lebih pendek semasa tempoh langganan.','- Akaun yang ditutup kerana melanggar Terma Perkhidmatan.','- Bayaran yang dihantar ke destinasi selain QRIS atau DuitNow yang tertera di Urus langganan.','- Permohonan dengan nombor rujukan atau resit yang dipalsukan, diubah atau digunakan semula.']],
+   ['5. Cara memohon',['Hantar e-mel ke '+SUPPORT+' dengan tajuk “Bayaran Balik”, atau tulis melalui chat admin dalam Zui To-Do, dan sertakan:','- e-mel akaun,','- tarikh, jumlah dan nombor rujukan bayaran, serta resitnya,','- sebab permohonan,','- nama bank atau e-dompet, nombor akaun dan nama pemilik akaun untuk menerima dana.']],
+   ['6. Proses dan masa',['- Kami membalas permohonan dalam masa 2 hari bekerja.','- Jika diluluskan, dana dihantar dalam 7 hingga 14 hari bekerja ke akaun bank atau e-dompet yang anda berikan.','- Bayaran balik kerana bayaran berganda atau lebihan bayaran tidak mengubah langganan yang telah aktif. Untuk langganan yang belum diaktifkan, permohonannya dibatalkan dan data dalam akaun anda kekal selamat.']]
+  ],
+  contact:[
+   ['','Zui To-Do diuruskan oleh Zui System, PT. Zaor Utama Indonesia.'],
+   ['Syarikat','PT. Zaor Utama Indonesia'],
+   ['Alamat','Dsn. Togur Dajah, Sotabar, Pasean, Pamekasan, Jawa Timur 69356, Indonesia'],
+   ['Bantuan & bayaran balik',SUPPORT],
+   ['Maklumat am & kerjasama',INFO_MAIL],
+   ['WhatsApp',WA_NUM],
+   ['Waktu perkhidmatan','Setiap hari, 08.00–22.00 WIB (09.00–23.00 waktu Malaysia)'],
+   ['Laman aplikasi','todo.zuisystem.com']
   ]
  },
  en:{
@@ -1763,26 +1819,52 @@ const DOCS={
    ['How do I contact Zui System?','Via Settings → Feedback: email '+CONTACT+' or chat with the admin directly.']
   ],
   terms:[
-   ['1. Operator','Zui To-Do is managed by Zui System, PT. Zaor Utama Indonesia ("we"). By creating an account or using the app you agree to these terms.'],
-   ['2. Account','You are responsible for keeping your account and password secure. One account per person.'],
-   ['3. Fair use','Do not use Zui To-Do for unlawful content, to disrupt the service, or to try to access other users\' data.'],
-   ['4. Trial','New accounts get a 14-day trial with every feature. After the trial and a 3-day grace period, accounts without an active subscription become read-only.'],
-   ['5. Subscription & payment','Prices for Starter, Pro and Business are shown on the Manage subscription page and may change; changes do not affect periods already paid. Payment is manual and becomes active once verified by the admin.'],
-   ['6. Refunds','Activated payments are non-refundable, except for duplicate payments or errors on our side. Contact us within 7 days.'],
-   ['7. Availability','We work to keep the service running but cannot guarantee it is uninterrupted. Features may be added, changed or retired.'],
-   ['8. Liability','Zui To-Do is a productivity aid. We are not liable for indirect losses from missed tasks or data entered by users.'],
-   ['9. Termination','We may suspend accounts that break these terms. You may stop at any time and request account deletion at '+CONTACT+'.'],
-   ['10. Governing law','These terms are governed by the laws of the Republic of Indonesia. Effective 18 October 2026.']
+   ['','These terms govern your use of the Zui To-Do app (“the service”), managed by Zui System, PT. Zaor Utama Indonesia (“we”). By creating an account or using the service, you agree to these terms.'],
+   ['1. Our service',['Zui To-Do is a web app for capturing and organizing personal tasks, stored in your account and synced across every device you sign in on:','- Tasks: title, notes, priority, category, due date, and tasks with a span (daily, weekly, monthly, yearly). Unfinished tasks with a span move on to the next period as Carried over.','- Views: Today, Board, Calendar, and Summary.','- Goals: daily, weekly, monthly, and yearly task goals.','- Profile and themes: personal profile, ready-made themes, and custom themes (on some plans).','- Data: export tasks to CSV, and back up and restore data (JSON), depending on your plan.','- Help: chat with Zui admin and subscription requests.','We may add, change, or retire features from time to time.']],
+   ['2. Account and security',['- You must be at least 18, or have consent from a parent or guardian if you are under 18.','- You must give a correct name and email so your account can be recovered.','- One account per person. Do not share your account with others.','- Keep your password secret. You are responsible for all activity on your account.','- Contact us right away if you think someone else is using your account.']],
+   ['3. Plans and features',['Every account is on one of these plans:','- Starter: all views (Today, Board, Calendar, Summary), daily to yearly goals, sync across devices, 8 ready-made themes, and up to 5 categories.','- Pro: everything in Starter, up to 50 categories, custom themes (colors, font, text size, corners), and task export to CSV.','- Business: everything in Pro, data backup and restore (JSON), and priority admin chat replies.','If you move to a lower plan, features outside that plan are locked, but your existing data stays stored.']],
+   ['4. Trial and subscription',['- New accounts get a free 14-day trial with every Business feature.','- After the trial, you can choose Starter, Pro, or Business for 1 month, 6 months, or 1 year. Prices are per account and shown in Settings → Manage subscription in Rupiah or Ringgit.','- Prices may change. Price changes do not affect periods already paid.','- Pay by QRIS (Rupiah) or DuitNow (Ringgit) to the code shown in Manage subscription. After paying, enter the reference number from your receipt and send it from that page. You can also send a photo of the receipt in the admin chat.','- We check the payment and activate the subscription manually, usually within 24 hours. Activation depends on service hours and is not guaranteed to be instant. Paid time is added from your current end date, or from the activation day if your access has already ended.','- Subscriptions do not renew automatically.','- When a trial or subscription ends, there is a 3-day grace period. After that your tasks and data are read-only until a subscription is active. Your data stays stored.','- An active subscription cannot be cancelled and its payment cannot be refunded, except for payment errors under the Refund Policy.']],
+   ['5. Your data','The data you enter, such as tasks, categories, goals, and profile, remains yours. We only use it to run the service as described in the Privacy Policy. You are responsible for what you record and for having the right to store it, including when your tasks contain other people’s data. We recommend backing up your data regularly.'],
+   ['6. Prohibited use',['- Using the service to store or share unlawful content, or entering other people’s data without the right to do so.','- Trying to open other users’ data, break security, or disrupt the service.','- Sending reference numbers or receipts that are forged, altered, or reused.','- Copying, reselling, or renting out access to the service without our written permission.']],
+   ['7. Availability','We work to keep the service available but cannot guarantee it is uninterrupted. Maintenance, updates, network problems, or infrastructure provider outages may make the service or sync temporarily unavailable.'],
+   ['8. Limitation of liability','Zui To-Do is a note-keeping aid. Reminders, goals, and summaries are calculated from the data you enter. To the extent permitted by law, we are not liable for indirect losses, lost profits, missed tasks or deadlines, or losses caused by incorrect data. Our total liability for any one dispute does not exceed what you paid for your subscription in the last 3 months.'],
+   ['9. Termination','You can stop using the service at any time by not renewing, deleting your tasks and profile data in the app, or asking us to delete your account and all its data at '+SUPPORT+'. We may suspend or close accounts that break these terms, with notice where possible.'],
+   ['10. Changes to these terms','We may update these terms. We will announce important changes in the service or by email. The effective date above shows the latest version.'],
+   ['11. Governing law','These terms are governed by the laws of the Republic of Indonesia. Disputes are first settled by discussion and, failing that, through the Pamekasan District Court (Pengadilan Negeri Pamekasan).'],
+   ['12. Contact us','See Settings → Contact & Address.']
   ],
   privacy:[
-   ['Data we collect','Account email and name, optional profile details, tasks, categories, goals, display settings, subscription request history and chats with the admin.'],
-   ['How we use it','To run the app, sync your data, process subscriptions and answer your questions. We do not sell your personal data.'],
-   ['Storage & security','Data is stored on Google Firebase over encrypted connections (HTTPS). Only you can read your tasks. Zui admin only sees account details, subscription status, payment requests and chats you send.'],
-   ['Payments','We do not store card or bank details, only the plan, amount, currency, reference number and any proof photo you send.'],
-   ['On-device storage','The app uses browser storage for language, theme and an offline copy.'],
-   ['Your rights','You can view and edit your data, download a backup and request deletion of your account and data at '+CONTACT+'.'],
-   ['Changes','This policy may be updated. Effective 18 October 2026.'],
-   ['Contact','Zui System, PT. Zaor Utama Indonesia · '+CONTACT]
+   ['','This policy explains what data Zui To-Do collects, why, and how you can control it. We follow Indonesian Law No. 27 of 2022 on Personal Data Protection.'],
+   ['1. Data we collect',['- Account data: name, email, and password. Passwords are handled by Firebase Authentication and we cannot see them. If you sign in with Google, we receive your Google account name and email.','- Profile (optional): full name, nickname, username, date of birth, gender, phone, city or country, job title, organization or school, bio, profile photo, daily task goal, and reminder time. Every field may be left empty.','- Data you enter: tasks with their notes, priority, due date, and status, categories, and goals.','- Settings: language, theme, and custom theme stored in your account.','- Subscription and help: the plan, duration, amount, currency, and payment reference number you send, plus your chats with the admin, including any receipt photos you attach.','- On-device storage: language, theme, and an offline copy of your data kept in your device’s browser so the app stays fast and works on a weak connection.']],
+   ['2. How we use data',['- Running the service, such as saving tasks, syncing data across devices, and showing goals and summaries.','- Verifying your account and helping you reset your password.','- Managing trials and subscriptions, including checking payments.','- Answering your questions, feedback, and help requests.','- Keeping the service secure.','We do not sell personal data and do not use your tasks for advertising.']],
+   ['3. Storage and security','Data is stored on Google Firebase (Authentication and Cloud Firestore), so the servers may be outside Indonesia. Your tasks and profile can only be opened by your own account. Connections to the service are encrypted with HTTPS.'],
+   ['4. Sharing data',['We only share data with:','- Google, as the provider of storage, sign-in (including Sign in with Google), and fonts (Google Fonts).','- GitHub, as the host of the app pages (GitHub Pages).','- Authorities, when required by law.','The Share with friends button only opens the app you choose (such as WhatsApp, Telegram, or email) with a link to Zui To-Do. Your tasks and profile are not shared.','Zui admin can see your account name and email, subscription status, payment requests, and chats you send. Your tasks, categories, goals, and profile are not shown in the admin panel. Technical staff may open the database through the Firebase console only when needed for maintenance or when you ask for help.']],
+   ['5. Your rights','You have the right to request a copy of your personal data, correct wrong data, delete data, and withdraw consent. Most of this you can do yourself in the app, such as editing or deleting tasks and profile, exporting tasks, and downloading a backup depending on your plan. For anything else, including account deletion, email '+SUPPORT+'. We will respond within 14 working days of receiving your request.'],
+   ['6. Retention and deletion','Data is kept while your account is active. Tasks and profile data you delete in the app are removed from your account right away. If you ask us to delete your account, the account and all your tasks, categories, goals, profile, and settings are permanently deleted and cannot be recovered. Subscription payment records and help chats, including receipts, are kept as required for bookkeeping and by law, then deleted once no longer needed. Backup copies at our infrastructure provider, if any, are permanently deleted after a limited time. Data stored in your device’s browser can be cleared through your browser settings.'],
+   ['7. Other people’s data in your tasks','If you record other people’s data in your tasks, such as a name or phone number, you decide what is recorded and are responsible for it. We process that data on your behalf and only to run the service.'],
+   ['8. Minors','Users under 18 may only use the service with consent from a parent or guardian. If you are a parent or guardian and learn that your child gave us data without your consent, contact us so it can be deleted.'],
+   ['9. Changes to this policy','If this policy changes, we will update the effective date and announce important changes in the service or by email.'],
+   ['10. Contact us','Questions or requests about personal data can be sent to '+SUPPORT+'. The full address is in Settings → Contact & Address.']
+  ],
+  refund:[
+   ['','This policy sets out the refund rules for Zui To-Do subscription payments.'],
+   ['','! An active subscription is final. It cannot be cancelled and its payment cannot be refunded, except for the payment errors in section 3.'],
+   ['1. Try before you pay','Every new account gets a free 14-day trial with every Business feature, with no payment. We recommend using it to make sure the service and the plan you choose fit your needs before subscribing.'],
+   ['2. Plans and prices',['One subscription covers one account.','{prices}','The price that applies is the one shown in Manage subscription when you send your request, including any promotional price. Subscriptions do not renew automatically, so there are no recurring charges without your approval.']],
+   ['3. Exception: payment errors',['Refunds only apply to the following payment errors, if requested within 7 days of payment:','- Duplicate payment: you paid twice for the same request. The extra payment is refunded in full.','- Overpayment: you paid more than the plan price. The difference is refunded.','- Subscription not activated: your subscription is not active within 72 hours of sending a correct reference number, and you choose to cancel. The payment is refunded in full.']],
+   ['4. Non-refundable payments',['- Active subscriptions, including renewals, for any reason, such as a change of mind or no longer using the service.','- The remaining time if you stop using the service mid-period.','- Moving to a lower plan or a shorter duration during a subscription.','- Accounts closed for breaking the Terms of Service.','- Payments sent anywhere other than the QRIS or DuitNow shown in Manage subscription.','- Requests with forged, altered, or reused reference numbers or receipts.']],
+   ['5. How to request',['Email '+SUPPORT+' with the subject “Refund”, or write in the admin chat in Zui To-Do, and include:','- your account email,','- the payment date, amount, and reference number, plus the receipt,','- the reason for your request,','- the bank or e-wallet name, account number, and account holder name to receive the funds.']],
+   ['6. Process and timing',['- We reply within 2 working days.','- If approved, funds are sent within 7 to 14 working days to the bank account or e-wallet you provide.','- Refunds for duplicate payments or overpayment do not change an active subscription. For a subscription not yet activated, the request is cancelled and the data in your account stays safe.']]
+  ],
+  contact:[
+   ['','Zui To-Do is managed by Zui System, PT. Zaor Utama Indonesia.'],
+   ['Company','PT. Zaor Utama Indonesia'],
+   ['Address','Dsn. Togur Dajah, Sotabar, Pasean, Pamekasan, East Java 69356, Indonesia'],
+   ['Help & refunds',SUPPORT],
+   ['General info & partnerships',INFO_MAIL],
+   ['WhatsApp',WA_NUM],
+   ['Service hours','Every day, 08:00–22:00 WIB (UTC+7)'],
+   ['App site','todo.zuisystem.com']
   ]
  }
 };
@@ -1950,11 +2032,29 @@ function normLook(v){const o=Object.assign({},LOOK0,v&&typeof v==='object'?v:{})
 /* ---------- pages ---------- */
 const APP_URL=/^https?:/.test(location.protocol)&&!/claude|localhost|127\.0/.test(location.hostname)?location.origin+location.pathname:'https://todo.zuisystem.com';
 function segBtns(act,list,cur){return '<div class="seg full">'+list.map(function(o){return '<button type="button" data-act="'+act+'" data-v="'+o[0]+'" aria-pressed="'+(String(cur)===String(o[0]))+'">'+o[1]+'</button>'}).join('')+'</div>'}
+/* doc text: a string or a list of lines; "- " starts a bullet, "! " a highlighted note, {prices} the live price table */
+function docText(v){
+  let h='',ul='';
+  (Array.isArray(v)?v:[v]).forEach(function(t){
+    if(t.slice(0,2)==='- '){ul+='<li>'+esc(t.slice(2))+'</li>';return}
+    if(ul){h+='<ul>'+ul+'</ul>';ul=''}
+    if(t==='{prices}') h+=priceTable();
+    else if(t.slice(0,2)==='! ') h+='<p class="dnote">'+esc(t.slice(2))+'</p>';
+    else h+='<p>'+esc(t)+'</p>';
+  });
+  return h+(ul?'<ul>'+ul+'</ul>':'');
+}
+function priceTable(){
+  const ms=[1,6,12];
+  return '<div class="dtbl"><table><thead><tr><th></th>'+ms.map(function(m){return '<th>'+L(m===12?'m12':'m'+m)+'</th>'}).join('')+'</tr></thead><tbody>'
+   +PORD.map(function(p){return '<tr><th>'+esc(plName(p))+'</th>'+ms.map(function(m){return '<td>'+money(priceOf(p,m,'IDR'),'IDR')+'<br>'+money(priceOf(p,m,'MYR'),'MYR')+'</td>'}).join('')+'</tr>'}).join('')
+   +'</tbody></table></div>';
+}
 function renderDoc(k){
   const items=doc(k),title=L(k);
   let body;
   if(k==='faq') body='<div class="pcard faq">'+items.map(function(q,i){return '<details'+(i===0?' open':'')+'><summary>'+esc(q[0])+svg(P.up,18)+'</summary><p>'+esc(q[1])+'</p></details>'}).join('')+'</div>';
-  else body='<article class="pcard pad docx">'+items.map(function(s){return '<h3>'+esc(s[0])+'</h3><p>'+esc(s[1])+'</p>'}).join('')+'</article>';
+  else body='<article class="pcard pad docx">'+(k==='contact'?'':'<p class="dver">Zui To-Do '+L('version')+' '+APP_VER+' · '+L('docVer')+'</p>')+items.map(function(s){return (s[0]?'<h3>'+esc(s[0])+'</h3>':'')+docText(s[1])}).join('')+'</article>';
   putPanel(panelShell(title,body+'<small class="muted center">Zui System · PT. Zaor Utama Indonesia</small>'));
 }
 function renderSub(){
