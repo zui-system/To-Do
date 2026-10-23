@@ -28,4 +28,4 @@
 ## Catatan
 - Alamat yang dibagikan tombol Berbagi: alamat situs tempat To-Do dibuka; bila dibuka di luar situs (mis. pratinjau), memakai `https://todo.zuisystem.com`. Ubah `APP_URL` di `index.html` bila alamatnya lain.
 - Harga awal To-Do ada di `index.html` (`DEFP`, `DEFPM`) dan `config.js` Zui Admin (`hargaAwal`). Setelah harga disimpan dari Zui Admin, keduanya memakai harga dari Zui Admin.
-- Teks Syarat & Ketentuan dan Kebijakan Privasi adalah draf umum; sebaiknya dibaca ulang sebelum dipublikasikan.
+- Teks legal (Syarat & Ketentuan, Kebijakan Privasi, Kebijakan Pengembalian Dana, Kontak & Alamat) ada di `DOCS` dalam `index.html` (Indonesia, Melayu, English) dan sama isinya dengan `LEGAL.md`. Bila salah satu diubah, samakan yang lain. Tabel harga di Kebijakan Pengembalian Dana memakai harga langsung dari Zui Admin.
